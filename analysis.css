@@ -1,0 +1,332 @@
+/* ========================= */
+/* 共通 */
+/* ========================= */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:sans-serif;
+
+}
+
+
+body{
+
+    background:#f5f5f5;
+    padding:15px;
+
+    padding-bottom:80px;
+
+}
+
+
+h1{
+
+    margin-bottom:20px;
+
+}
+
+
+h2{
+
+    margin-bottom:15px;
+
+}
+
+
+h3{
+
+    font-size:16px;
+
+}
+
+
+
+/* ========================= */
+/* セクション */
+/* ========================= */
+
+
+section{
+
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    margin-top:15px;
+
+}
+
+
+
+/* ========================= */
+/* 分析 サマリー */
+/* ========================= */
+
+
+.summary{
+
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+
+}
+
+
+
+.analysis-card{
+
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+
+}
+
+
+
+.analysis-card h3{
+
+    font-size:15px;
+    color:#666;
+
+}
+
+
+
+.analysis-card p{
+
+    margin-top:10px;
+    font-size:26px;
+    font-weight:bold;
+    color:#2196F3;
+
+}
+
+
+
+/* 成長分析だけ横いっぱい */
+
+.growth-card{
+
+    grid-column:1 / -1;
+
+}
+
+
+
+.growth-card p{
+
+    color:#4CAF50;
+
+}
+
+
+
+.growth-card small{
+
+    display:block;
+    margin-top:10px;
+    color:#666;
+    font-size:14px;
+
+}
+
+
+
+@media(max-width:600px){
+
+    .summary{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .growth-card{
+
+        grid-column:auto;
+
+    }
+
+}
+
+
+
+/* ========================= */
+/* グラフ */
+/* ========================= */
+
+
+canvas{
+
+    width:100% !important;
+
+    height:auto !important;
+
+    margin-top:15px;
+
+}
+
+
+
+/* ========================= */
+/* ランキング */
+/* ========================= */
+
+
+.rank-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px 5px;
+
+    border-bottom:1px solid #eee;
+
+    font-size:15px;
+
+}
+
+
+
+.rank-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+
+.rank-item strong{
+
+    font-size:16px;
+
+    color:#2196F3;
+
+}
+
+
+
+.rank-item small{
+
+    color:#777;
+
+}
+
+
+
+/* ========================= */
+/* 分析タイトル部分 */
+/* ========================= */
+
+
+#analysisPage > h2{
+
+    font-size:22px;
+
+}
+
+
+
+/* ========================= */
+/* ボタン */
+/* ========================= */
+
+
+button{
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px 18px;
+
+    font-size:15px;
+
+}
+
+
+
+/* ========================= */
+/* スマホ対応 */
+/* ========================= */
+
+
+@media(max-width:600px){
+
+
+    body{
+
+        padding:10px;
+
+        padding-bottom:90px;
+
+    }
+
+
+
+    .summary{
+
+        grid-template-columns:1fr;
+
+        gap:10px;
+
+    }
+
+
+
+    .analysis-card{
+
+        display:flex;
+
+        justify-content:space-between;
+
+        align-items:center;
+
+        padding:15px 20px;
+
+    }
+
+
+
+    .analysis-card h3{
+
+        font-size:14px;
+
+    }
+
+
+
+    .analysis-card p{
+
+        margin-top:0;
+
+        font-size:26px;
+
+    }
+
+
+
+    section{
+
+        padding:15px;
+
+        border-radius:14px;
+
+    }
+
+
+
+    canvas{
+
+        max-height:250px;
+
+    }
+
+
+}

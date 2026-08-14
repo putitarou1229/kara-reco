@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+
+<title>セットリスト作成</title>
+
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet" href="setlist.css">
+
+
+</head>
+
+
+<body>
+
+
+<div id="setlist-create-page" class="page">
+
+
+    <!-- ヘッダー -->
+
+    <div class="detail-header">
+
+
+        <button class="setlist-back-btn">
+
+            ← 戻る
+
+        </button>
+
+
+      <div class="setlist-title-area">
+
+    <input
+        id="setlist-title"
+        class="setlist-title-input"
+        type="text"
+        placeholder="セットリスト名">
+
+</div>
+
+
+    </div>
+
+
+
+
+
+    <!-- 曲追加エリア -->
+
+    <section class="setlist-create-section">
+
+
+
+        <!-- ================= -->
+        <!-- 手入力 -->
+        <!-- ================= -->
+
+
+        <h3>
+
+            ✏️ 手入力で追加
+
+        </h3>
+
+
+
+        <div
+        id="manual-add-area"
+        class="manual-add-area">
+
+
+
+            <input
+            id="manual-title"
+            type="text"
+            placeholder="曲名">
+
+
+
+            <input
+            id="manual-artist"
+            type="text"
+            placeholder="アーティスト名">
+
+
+
+            <button
+            id="manual-add-btn"
+            class="manual-add-btn">
+
+
+                ＋追加
+
+
+            </button>
+
+
+
+        </div>
+
+
+
+
+
+
+        <!-- ================= -->
+        <!-- 検索 -->
+        <!-- ================= -->
+
+
+        <h3 class="search-title">
+
+            🔍 曲を検索
+
+        </h3>
+
+
+
+        <input
+        id="song-search"
+        type="text"
+        placeholder="曲名・アーティスト名で検索">
+
+
+
+
+
+        <!-- 検索結果 -->
+
+
+        <div
+        id="search-result-list">
+
+
+        </div>
+
+
+
+    </section>
+
+
+
+
+
+
+
+    <!-- ================= -->
+    <!-- 選択曲 -->
+    <!-- ================= -->
+
+
+    <section class="setlist-create-section">
+
+
+        <h3>
+
+            🎤 セットリスト
+
+        </h3>
+
+
+
+
+        <div
+        id="selected-songs"
+        class="selected-song-list">
+
+
+
+            <div class="empty-message">
+
+                まだ曲がありません
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </section>
+
+
+
+
+
+
+
+    <!-- 保存 -->
+
+
+    <button
+    class="save-setlist-btn">
+
+
+        💾 保存
+
+
+    </button>
+
+
+
+
+
+</div>
+
+
+
+
+
+<script src="data.js"></script>
+
+<script src="search.js"></script>
+
+<script src="setlist-create.js"></script>
+
+
+</body>
+
+
+</html>

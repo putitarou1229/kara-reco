@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カラレコ</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="history.css">
+    <link rel="stylesheet" href="analysis.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="setlist.css">
+    <link rel="stylesheet" href="song-detail.css">
+    <link rel="stylesheet" href="record.css">
+    <link rel="stylesheet" href="setting.css">
+
+
+
+</head>
+
+<body>
+
+    <main id="mainContent">
+
+        <!-- ========================= -->
+        <!-- ホーム -->
+        <!-- ========================= -->
+        <section id="homePage" class="page active">
+
+            <button id="addRecordBtn" class="add-record-btn">
+                ＋ 新しく記録する
+            </button>
+
+            <div class="card">
+
+                <h2>サマリー</h2>
+
+                <div class="summary-grid">
+
+                    <div class="summary-card">
+                        <span class="label">平均点</span>
+                        <span id="homeAverage">--</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="label">最高点</span>
+                        <span id="homeBest">--</span>
+                    </div>
+
+                    <div class="summary-card">
+                        <span class="label">登録数</span>
+                        <span id="homeCount">0曲</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <h2>最近歌った曲</h2>
+                    <button id="historyMoreBtn" class="text-btn">
+                        もっと見る
+                    </button>
+                </div>
+
+                <div id="recentSongs"></div>
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- 履歴 -->
+        <!-- ========================= -->
+        <section id="historyPage" class="page">
+
+            <h2>採点履歴</h2>
+
+            <div class="history-toolbar">
+
+                <input type="text" id="historySearch" placeholder="曲名・アーティストで検索">
+
+                <select id="historySort">
+                    <option value="new">新しい順</option>
+                    <option value="old">古い順</option>
+                    <option value="high">点数が高い順</option>
+                    <option value="low">点数が低い順</option>
+                </select>
+
+            </div>
+
+            <div id="historyList">
+                <div id="emptyHistory" class="hidden">
+
+                    <h3>📄 採点履歴はまだありません</h3>
+
+                    <p>
+                        ホーム画面から採点を登録すると<br>
+                        ここに表示されます。
+                    </p>
+
+                </div>
+            </div>
+
+            <div id="historyPagination" class="history-pagination"></div>
+
+        </section>
+
+        <!-- 編集モーダル -->
+        <div id="editModal" class="modal hidden">
+
+            <div class="modal-content">
+
+                <h3>採点記録を編集</h3>
+
+                <label>曲名</label>
+                <input id="editTitle">
+
+                <label>アーティスト</label>
+                <input id="editArtist">
+
+                <label>点数</label>
+                <input type="number" step="0.001" id="editScore">
+
+                <label>歌唱日</label>
+                <input type="date" id="editDate">
+
+                <div class="modal-buttons">
+
+                    <button id="cancelEdit" class="grayBtn">
+                        キャンセル
+                    </button>
+
+                    <button id="saveEdit">
+                        保存
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- 削除モーダル -->
+        <div id="deleteModal" class="modal hidden">
+
+            <div class="modal-content small">
+
+                <p>この記録を削除しますか？</p>
+
+                <div class="modal-buttons">
+
+                    <button id="cancelDelete" class="grayBtn">
+                        キャンセル
+                    </button>
+
+                    <button id="confirmDelete">
+                        削除
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- 分析 -->
+        <!-- ========================= -->
+        <section id="analysisPage" class="page hidden">
+
+            <h2>分析</h2>
+
+
+            <!-- サマリー -->
+            <div class="summary">
+
+                <div class="analysis-card">
+                    <h3>平均点</h3>
+                    <p id="avgScore">--</p>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>最高点</h3>
+                    <p id="maxScore">--</p>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>登録数</h3>
+                    <p id="songCount">--</p>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>最近10曲平均</h3>
+                    <p id="recentAverage">--</p>
+                </div>
+
+                <div class="analysis-card growth-card">
+                    <h3>📈 成長度</h3>
+                    <p id="growthValue">--</p>
+                    <small id="growthMessage"></small>
+                </div>
+
+            </div>
+
+            <!-- 点数推移 -->
+            <section>
+
+                <h3>📈 点数推移</h3>
+
+                <canvas id="scoreChart"></canvas>
+
+            </section>
+
+
+
+            <!-- 得点分布 -->
+            <section>
+
+                <h3>📊 得点分布</h3>
+
+                <canvas id="distributionChart"></canvas>
+
+            </section>
+
+
+
+            <!-- 自己ベスト -->
+            <section>
+
+                <h3>🏆 自己ベストランキング</h3>
+
+                <div id="bestList"></div>
+
+            </section>
+
+
+
+
+
+
+
+            <!-- アーティスト傾向 -->
+            <section>
+
+                <h3>🎶 よく歌うアーティスト</h3>
+
+                <div id="artistList"></div>
+
+            </section>
+
+
+        </section>
+        <!-- ========================= -->
+        <!-- セットリスト -->
+        <!-- ========================= -->
+        <section id="setlistPage" class="page hidden">
+
+            <h2 class="page-title">🎤 セットリスト</h2>
+
+            <!-- 自分で作成 -->
+            <section class="setlist-section">
+
+
+                <!-- 新規作成エリア -->
+
+                <div class="create-setlist-area">
+
+
+                    <input id="newSetlistName" type="text" placeholder="セットリスト名">
+
+
+                    <button id="createSetlistBtn" class="create-setlist-btn">
+
+                        ＋ 作成
+
+                    </button>
+
+
+                </div>
+
+                <!-- 作成済み -->
+
+                <h4 class="sub-title">
+                    作成済み
+                </h4>
+
+
+                <div id="user-setlists" class="setlist-list">
+
+
+                </div>
+
+
+            </section>
+
+            <!-- 自動作成 -->
+            <section class="setlist-section">
+
+                <h3>✨ 自動作成</h3>
+
+                <div class="auto-setlist-grid">
+
+                    <div class="auto-card" data-type="recent">
+                        <h4>🎤 久しぶりセット</h4>
+                        <p>最近歌っていない曲を集めます</p>
+                    </div>
+
+                    <div class="auto-card" data-type="growth">
+                        <h4>📈 成長中セット</h4>
+                        <p>最近伸びている曲を集めます</p>
+                    </div>
+
+                    <div class="auto-card" data-type="challenge">
+                        <h4>🔥 チャレンジセット</h4>
+                        <p>限界に挑戦する曲を選びます</p>
+                    </div>
+
+                    <div class="auto-card" data-type="balance">
+                        <h4>⚖ 難易度バランス</h4>
+                        <p>無理なく歌える順番で作成</p>
+                    </div>
+
+                    <div class="auto-card" data-type="practice">
+                        <h4>📚 練習セット</h4>
+                        <p>練習におすすめの曲を選びます</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================= -->
+            <!-- 自動セットリストプレビュー -->
+            <!-- ========================= -->
+
+            <section id="autoSetlistPreview" class="setlist-section hidden">
+
+                <div class="section-header">
+
+                    <h3 id="autoSetlistPreviewTitle">
+                        自動セットリスト
+                    </h3>
+
+                </div>
+
+
+                <div id="autoSetlistPreviewList" class="setlist-preview-list">
+
+                </div>
+
+
+                <div class="auto-preview-buttons">
+
+                    <button id="saveAutoSetlistBtn" class="create-setlist-btn">
+
+                        ✓ このセットリストを保存
+
+                    </button>
+
+
+                    <button id="cancelAutoSetlistBtn" class="grayBtn" type="button">
+
+                        キャンセル
+
+                    </button>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- ========================= -->
+        <!-- 新しく記録する -->
+        <!-- ========================= -->
+
+        <section id="recordPage" class="page hidden">
+
+            <div class="page-header">
+
+                <button class="back-btn" id="recordBackBtn">
+                    ←
+                </button>
+
+                <h2>新しく記録する</h2>
+
+            </div>
+
+            <div class="record-form">
+
+                <!-- 曲名 -->
+                <div class="form-group">
+
+                    <label for="recordTitle">
+                        曲名
+                    </label>
+
+                    <input type="text" id="recordTitle" placeholder="曲名を入力" autocomplete="off">
+
+                    <!-- 曲名候補 -->
+                    <div id="recordTitleSuggestions" class="input-suggestions hidden"></div>
+
+                </div>
+
+
+                <!-- アーティスト -->
+                <div class="form-group">
+
+                    <label for="recordArtist">
+                        アーティスト
+                    </label>
+
+                    <input type="text" id="recordArtist" placeholder="アーティスト名を入力" autocomplete="off">
+
+                    <!-- アーティスト候補 -->
+                    <div id="recordArtistSuggestions" class="input-suggestions hidden"></div>
+
+                </div>
+
+
+
+                <!-- 点数 -->
+                <div class="form-group">
+
+                    <label for="recordScore">
+                        点数
+                    </label>
+
+                    <input type="number" id="recordScore" step="0.001" min="0" max="100" placeholder="例：95.432">
+
+                </div>
+
+
+                <!-- 歌唱日 -->
+                <div class="form-group">
+
+                    <label for="recordDate">
+                        歌唱日
+                    </label>
+
+                    <input type="date" id="recordDate">
+
+                </div>
+
+                <!-- OCR・記録 -->
+                <div class="record-action-buttons">
+
+                    <button id="recordOcrBtn" class="ocr-btn" type="button">
+                        📷で自動入力
+                    </button>
+
+                    <input type="file" id="recordOcrInput" accept="image/*" capture="environment" hidden>
+
+                    <button id="saveRecordBtn" class="save-record-btn" type="button">
+                        記録する
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- 設定 -->
+        <!-- ========================= -->
+        <section id="settingsPage" class="page hidden">
+
+            <div class="pageHeader">
+                <h2>設定</h2>
+            </div>
+
+            <div class="settingsList">
+
+                <!-- データのバックアップ -->
+                <button class="settingsItem" id="backupDataBtn">
+                    <div class="settingsItemText">
+                        <div class="settingsItemTitle">
+                            データのバックアップ
+                        </div>
+                        <div class="settingsItemDescription">
+                            カラレコのデータをバックアップします
+                        </div>
+                    </div>
+                    <div class="settingsArrow">›</div>
+                </button>
+
+                <!-- データの復元 -->
+                <button class="settingsItem" id="restoreDataBtn">
+                    <div class="settingsItemText">
+                        <div class="settingsItemTitle">
+                            データの復元
+                        </div>
+                        <div class="settingsItemDescription">
+                            バックアップしたデータを復元します
+                        </div>
+                    </div>
+                    <div class="settingsArrow">›</div>
+                </button>
+                <input type="file" id="restoreFileInput" accept=".json" style="display: none;">
+
+                <!-- 全データ削除 -->
+                <button class="settingsItem settingsDanger" id="deleteAllDataBtn">
+                    <div class="settingsItemText">
+                        <div class="settingsItemTitle">
+                            全データ削除
+                        </div>
+                        <div class="settingsItemDescription">
+                            カラレコに保存されているすべてのデータを削除します
+                        </div>
+                    </div>
+                    <div class="settingsArrow">›</div>
+                </button>
+
+                <!-- アプリ情報 -->
+                <button class="settingsItem" id="appInfoBtn">
+
+                    <div class="settingsItemText">
+
+                        <div class="settingsItemTitle">
+                            アプリ情報
+                        </div>
+
+                        <div class="settingsItemDescription">
+                            カラレコについて
+                        </div>
+
+                    </div>
+
+                    <div class="settingsArrow">
+                        ›
+                    </div>
+
+                </button>
+
+
+                <!-- アプリ情報詳細 -->
+                <div id="appInfoArea" class="appInfoArea hidden">
+
+                    <div class="appInfoTitle">
+                        カラレコ
+                    </div>
+
+                    <div class="appInfoVersion">
+                        バージョン 1.0.0
+                    </div>
+
+                    <div class="appInfoDescription">
+                        カラオケの歌唱記録を管理するアプリです。
+                    </div>
+
+                    <div class="appInfoCopyright">
+                        © 2026 いぬとぬこ
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+        <!-- ========================= -->
+        <!-- 曲詳細 -->
+        <!-- ========================= -->
+
+        <section id="songDetailPage" class="page hidden">
+
+            <!-- ヘッダー -->
+
+            <div class="page-header">
+
+                <button class="back-btn" id="backBtn">
+                    ←
+                </button>
+
+                <h2>曲詳細</h2>
+
+            </div>
+
+            <!-- 曲情報 -->
+
+            <div class="song-detail-card">
+
+
+                <h1 id="detail-title">
+                    Pretender
+                </h1>
+
+
+                <p id="detail-artist">
+                    Official髭男dism
+                </p>
+
+
+
+                <!-- 自己ベスト -->
+
+                <div class="score-main">
+
+                    <span id="detail-best-score">
+                        95.432
+                    </span>
+
+                    <small>
+                        点
+                    </small>
+
+                    <p>
+                        自己ベスト
+                    </p>
+
+                </div>
+
+
+
+                <!-- サマリー -->
+
+                <div class="score-summary">
+
+
+                    <div>
+
+                        <span>
+                            平均点
+                        </span>
+
+
+                        <strong id="detail-average-score">
+                            92.850
+                        </strong>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <span>
+                            歌唱回数
+                        </span>
+
+
+                        <strong id="detail-record-count">
+                            2回
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+
+            <!-- =========================
+         歌唱履歴
+    ========================= -->
+
+            <div class="detail-section">
+
+                <h3>
+                    歌唱履歴
+                </h3>
+
+
+                <div id="song-history-list">
+
+
+                </div>
+
+
+            </div>
+
+
+
+
+            <!-- =========================
+         成長推移
+    ========================= -->
+
+            <div class="detail-section">
+
+                <h3>
+                    点数推移
+                </h3>
+
+
+                <div class="detail-chart">
+                    <canvas id="songGrowthChart"></canvas>
+                </div>
+
+            </div>
+
+
+
+
+            <!-- =========================
+         メモ
+    ========================= -->
+
+            <div class="detail-section">
+
+                <h3>
+                    メモ
+                </h3>
+
+
+                <textarea id="songMemo" class="memo-box" placeholder="この曲のメモを入力..."></textarea>
+
+
+            </div>
+
+
+
+        </section>
+
+    </main>
+
+    <!-- ========================= -->
+    <!-- 下部ナビ -->
+    <!-- ========================= -->
+
+    <nav class="bottomNav">
+
+        <button id="homeTab">
+            🏠<br>
+            ホーム
+        </button>
+
+        <button id="historyTab">
+            📜<br>
+            履歴
+        </button>
+
+        <button id="analysisTab">
+            📊<br>
+            分析
+        </button>
+
+        <button id="setlistTab">
+            🎵<br>
+            セットリスト
+        </button>
+
+        <button id="settingsTab">
+            ⚙️<br>
+            設定
+        </button>
+
+    </nav>
+    <div id="toast"></div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="search.js"></script>
+    <script src="history.js"></script>
+    <script src="analysis.js"></script>
+    <script src="home.js"></script>
+    <script src="setlist.js"></script>
+    <script src="record.js"></script>
+    <script src="setting.js"></script>
+    <script>
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker
+            .register("./sw.js")
+            .then(registration => {
+
+                console.log(
+                    "Service Worker 登録成功:",
+                    registration.scope
+                );
+
+            })
+            .catch(error => {
+
+                console.error(
+                    "Service Worker 登録失敗:",
+                    error
+                );
+
+            });
+
+    });
+
+}
+</script>
+
+</body>
+
+</html>

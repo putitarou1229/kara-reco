@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>セットリスト詳細</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="setlist.css">
+
+</head>
+
+<body>
+
+    <div id="setlist-detail-page" class="page">
+
+        <!-- ヘッダー -->
+        <div class="detail-header">
+
+            <button
+                class="setlist-back-btn"
+                type="button">
+                ← 戻る
+            </button>
+
+            <h2 id="detail-title">
+                セットリスト
+            </h2>
+
+        </div>
+
+
+        <!-- 曲一覧 -->
+        <section class="setlist-create-section">
+
+            <h3>🎤 曲一覧</h3>
+
+            <div id="detail-song-list">
+                <!-- JSで曲を表示 -->
+            </div>
+
+        </section>
+
+
+        <!-- 編集 -->
+        <button
+            id="editSetlistBtn"
+            class="manual-add-btn"
+            type="button">
+
+            🖊 編集
+
+        </button>
+
+
+        <!-- 削除 -->
+        <button
+            id="deleteSetlistBtn"
+            class="remove-setlist-btn"
+            type="button">
+
+            🗑 削除
+
+        </button>
+
+    </div>
+
+
+    <script src="data.js"></script>
+    <script src="setlist-detail.js"></script>
+
+</body>
+
+</html>

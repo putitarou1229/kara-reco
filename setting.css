@@ -1,0 +1,108 @@
+/* ===============================
+   設定画面
+=============================== */
+
+.settingsList {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.settingsItem {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 16px 18px;
+
+    background: #ffffff;
+    border: none;
+    border-radius: 12px;
+
+    text-align: left;
+    cursor: pointer;
+
+    box-sizing: border-box;
+}
+
+.settingsItem:active {
+    transform: scale(0.99);
+}
+
+.settingsItemText {
+    flex: 1;
+}
+
+.settingsItemTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.settingsItemDescription {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #888;
+}
+
+.settingsArrow {
+    margin-left: 12px;
+
+    font-size: 25px;
+    line-height: 1;
+
+    color: #aaa;
+}
+
+/* 全データ削除 */
+
+.settingsDanger .settingsItemTitle {
+    color: #d9534f;
+}
+
+.settingsDanger .settingsArrow {
+    color: #d9534f;
+}
+
+/* ===============================
+   アプリ情報
+=============================== */
+
+.appInfoArea {
+    margin-top: 10px;
+    padding: 20px;
+
+    background: #ffffff;
+    border-radius: 12px;
+
+    text-align: center;
+}
+
+.appInfoTitle {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.appInfoVersion {
+    margin-top: 6px;
+
+    font-size: 13px;
+    color: #888;
+}
+
+.appInfoDescription {
+    margin-top: 20px;
+
+    font-size: 13px;
+    line-height: 1.7;
+    color: #666;
+}
+
+.appInfoCopyright {
+    margin-top: 20px;
+
+    font-size: 12px;
+    color: #aaa;
+}
