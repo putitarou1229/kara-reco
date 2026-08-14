@@ -627,19 +627,85 @@ function extractRecordData(text) {
 
 
     let title = "";
-
     let artist = "";
-
     let score = "";
-
     let date = "";
+
+
+    // ===============================
+    // 除外ワード
+    // ===============================
+
+    const ignoreWords = [
+
+        "Ai感性",
+        "AI感性",
+
+        "ボーナス",
+
+        "全国平均",
+
+        "分析レポート",
+
+        "DAM",
+
+        "演奏中止",
+
+        "で終了",
+
+        "で次の画面へ",
+
+        "ゲスト",
+
+        "前回",
+
+        "最高",
+
+        "音程",
+
+        "安定性",
+
+        "表現力",
+
+        "リズム",
+
+        "ビブラート",
+
+        "ロングトーン",
+
+        "しゃくり",
+
+        "こぶし",
+
+        "フォール",
+
+        "抑揚",
+
+        "技術",
+
+        "胸を張って",
+
+        "点",
+
+        "さん"
+
+    ];
 
 
     // ===============================
     // 点数
     // ===============================
 
-    for (const line of lines) {
+    let scoreIndex = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+
+        const line = lines[i];
+
+        // 例：
+        // 100.000
+        // 99.182
+        // 95.432
 
         const match =
             line.match(
@@ -648,9 +714,7 @@ function extractRecordData(text) {
 
 
         if (!match) {
-
             continue;
-
         }
 
 
@@ -665,6 +729,8 @@ function extractRecordData(text) {
 
             score =
                 match[1];
+
+            scoreIndex = i;
 
             break;
 
@@ -681,14 +747,12 @@ function extractRecordData(text) {
 
         const match =
             line.match(
-                /(20\d{2})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/
+                /(20\d{2})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/
             );
 
 
         if (!match) {
-
             continue;
-
         }
 
 
@@ -701,58 +765,211 @@ function extractRecordData(text) {
 
 
     // ===============================
-    // 曲名・アーティスト
+    // 曲名候補として使えるか
     // ===============================
 
-    const ignoreWords = [
+    function isValidCandidate(line) {
 
-        "Ai性ボーナス",
-
-        "全国平均",
-
-        "分析レポート",
-
-        "DAM",
-
-        "演奏中止",
-
-        "で終了",
-
-        "で次の画面へ"
-
-    ];
+        if (!line) {
+            return false;
+        }
 
 
-    const candidates =
-        lines.filter(line => {
+        // 数字だけの行を除外
+        if (
+            /^[\d\s.,:]+$/.test(line)
+        ) {
+            return false;
+        }
 
-            return !ignoreWords.some(
-                word =>
-                    line.includes(word)
+
+        // 除外ワード
+        if (
+            ignoreWords.some(word =>
+                line.includes(word)
+            )
+        ) {
+            return false;
+        }
+
+
+        // 日付
+        if (
+            /\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}/.test(line)
+        ) {
+            return false;
+        }
+
+
+        // 点数
+        if (
+            /\d{2,3}\.\d{1,3}/.test(line)
+        ) {
+            return false;
+        }
+
+
+        return true;
+
+    }
+
+
+    // ===============================
+    // パターン判定
+    // ===============================
+
+    if (scoreIndex !== -1) {
+
+        // -------------------------------
+        // 点数より前
+        // -------------------------------
+
+        const beforeScore =
+            lines
+                .slice(0, scoreIndex)
+                .filter(isValidCandidate);
+
+
+        // -------------------------------
+        // 点数より後
+        // -------------------------------
+
+        const afterScore =
+            lines
+                .slice(scoreIndex + 1)
+                .filter(isValidCandidate);
+
+
+        console.log(
+            "OCRパターン判定"
+        );
+
+        console.log(
+            "点数位置:",
+            scoreIndex
+        );
+
+        console.log(
+            "点数より前:",
+            beforeScore
+        );
+
+        console.log(
+            "点数より後:",
+            afterScore
+        );
+
+
+        // ===============================
+        // パターン①
+        // 曲名・アーティストが点数より前
+        // ===============================
+
+        if (
+            beforeScore.length >= 2
+        ) {
+
+            title =
+                beforeScore[0];
+
+            artist =
+                beforeScore[1];
+
+
+            console.log(
+                "→ パターン①：上部型"
             );
 
-        });
+        }
+
+        // ===============================
+        // パターン②
+        // 曲名・アーティストが点数より後
+        // ===============================
+
+        else if (
+            afterScore.length >= 2
+        ) {
+
+            title =
+                afterScore[0];
+
+            artist =
+                afterScore[1];
 
 
-    if (
-        candidates.length > 0
-    ) {
+            console.log(
+                "→ パターン②：下部型"
+            );
 
-        title =
-            candidates[0];
+        }
+
+        else if (
+            beforeScore.length === 1
+        ) {
+
+            title =
+                beforeScore[0];
+
+
+            console.log(
+                "→ 曲名のみ検出"
+            );
+
+        }
+
+        else if (
+            afterScore.length === 1
+        ) {
+
+            title =
+                afterScore[0];
+
+
+            console.log(
+                "→ 曲名のみ検出"
+            );
+
+        }
 
     }
 
 
-    if (
-        candidates.length > 1
-    ) {
+    // ===============================
+    // 点数が見つからなかった場合
+    // ===============================
 
-        artist =
-            candidates[1];
+    else {
+
+        console.log(
+            "→ 点数が検出できませんでした"
+        );
+
+
+        const candidates =
+            lines.filter(
+                isValidCandidate
+            );
+
+
+        if (
+            candidates.length >= 2
+        ) {
+
+            title =
+                candidates[0];
+
+            artist =
+                candidates[1];
+
+        }
 
     }
 
+
+    // ===============================
+    // 結果
+    // ===============================
 
     return {
 
