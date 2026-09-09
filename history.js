@@ -47,6 +47,77 @@ let currentPage = 1;
 
 
 // ===============================
+// 同じ曲を判定するための文字列正規化
+// ===============================
+
+function normalizeSongText(text) {
+
+    return String(text || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+}
+
+
+// ===============================
+// 同じ曲のレコードを取得
+// タイトル＋アーティストが一致するもの
+// ===============================
+
+function getSameSongRecords(title, artist) {
+
+    const normalizedTitle =
+        normalizeSongText(title);
+
+    const normalizedArtist =
+        normalizeSongText(artist);
+
+
+    return records.filter(record => {
+
+        return (
+            normalizeSongText(record.title) ===
+            normalizedTitle
+        ) &&
+        (
+            normalizeSongText(record.artist) ===
+            normalizedArtist
+        );
+
+    });
+
+}
+
+
+// ===============================
+// 曲のメモを統一
+// ===============================
+//
+// 同じ曲のレコードが複数ある場合、
+// 全レコードに同じメモを入れる。
+// ===============================
+
+function syncSongMemo(title, artist, memo) {
+
+    const sameSongRecords =
+        getSameSongRecords(
+            title,
+            artist
+        );
+
+
+    sameSongRecords.forEach(record => {
+
+        record.memo =
+            memo || "";
+
+    });
+
+}
+
+
+// ===============================
 // 履歴表示
 // ===============================
 
@@ -125,10 +196,19 @@ function drawHistory(list = records) {
 
     pageList.forEach(record => {
 
+        console.log(
+            "履歴record:",
+            record
+        );
+
+        console.log(
+            "メモ:",
+            record.memo
+        );
+
+
         const card =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         card.className =
@@ -159,6 +239,12 @@ function drawHistory(list = records) {
                     </div>
 
                     <div class="historyDate">
+                        ${
+                            record.memo &&
+                            record.memo.trim() !== ""
+                                ? '<span class="memoIcon">📝</span>'
+                                : ""
+                        }
                         ${record.date}
                     </div>
 
@@ -184,6 +270,8 @@ function drawHistory(list = records) {
             </div>
 
         `;
+
+
         // ===============================
         // カードクリック
         // ===============================
@@ -439,20 +527,27 @@ function drawPagination(totalItems) {
 
 function updateHistory() {
 
+    const searchInput =
+        document.getElementById(
+            "historySearch"
+        );
+
+    const sortInput =
+        document.getElementById(
+            "historySort"
+        );
+
+
     const keyword =
-        document
-            .getElementById(
-                "historySearch"
-            )
-            .value;
+        searchInput
+            ? searchInput.value
+            : "";
 
 
     const sort =
-        document
-            .getElementById(
-                "historySort"
-            )
-            .value;
+        sortInput
+            ? sortInput.value
+            : "";
 
 
     let list =
@@ -533,6 +628,10 @@ function openEditModal(id) {
 }
 
 
+// ===============================
+// 編集モーダルを閉じる
+// ===============================
+
 function closeEditModal() {
 
     editModal.classList.add(
@@ -546,35 +645,217 @@ function saveEdit() {
 
     const record =
         records.find(
-            r =>
-                r.id ===
-                editingId
+            r => r.id === editingId
         );
 
-
     if (!record) {
-
         return;
+    }
+
+
+    // ===============================
+    // 編集前の曲
+    // ===============================
+
+    const oldTitle =
+        record.title;
+
+    const oldArtist =
+        record.artist;
+
+    const oldMemo =
+        String(record.memo || "").trim();
+
+
+    // ===============================
+    // 編集後
+    // ===============================
+
+    const newTitle =
+        editTitle.value.trim();
+
+    const newArtist =
+        editArtist.value.trim();
+
+    const newScore =
+        Number(editScore.value);
+
+    const newDate =
+        editDate.value;
+
+
+    // ===============================
+    // 曲が変わったか
+    // ===============================
+
+    const songChanged =
+        normalizeSongText(oldTitle) !==
+            normalizeSongText(newTitle) ||
+        normalizeSongText(oldArtist) !==
+            normalizeSongText(newArtist);
+
+
+    // ===============================
+    // 基本情報を更新
+    // ===============================
+
+    record.title =
+        newTitle;
+
+    record.artist =
+        newArtist;
+
+    record.score =
+        newScore;
+
+    record.date =
+        newDate;
+
+
+    // ===============================
+    // 曲が変わっていない
+    // ===============================
+
+    if (!songChanged) {
+
+        // メモはそのまま
+
+        record.memo =
+            oldMemo;
 
     }
 
 
-    record.title =
-        editTitle.value;
+    // ===============================
+    // 別の曲へ変更
+    // ===============================
 
-    record.artist =
-        editArtist.value;
+    else {
 
-    record.score =
-        Number(
-            editScore.value
-        );
+        // ===============================
+        // 変更先の既存曲
+        // ===============================
 
-    record.date =
-        editDate.value;
+        const existingRecords =
+            getSameSongRecords(
+                newTitle,
+                newArtist
+            ).filter(
+                r => r.id !== record.id
+            );
 
+
+        // ===============================
+        // 変更先のメモ
+        // ===============================
+
+        let newMemo = "";
+
+
+        for (
+            const existingRecord
+            of existingRecords
+        ) {
+
+            const memo =
+                String(
+                    existingRecord.memo || ""
+                ).trim();
+
+
+            if (memo !== "") {
+
+                newMemo =
+                    memo;
+
+                break;
+
+            }
+
+        }
+
+
+        // ===============================
+        // 変更先に既存曲がある
+        // ===============================
+
+        if (existingRecords.length > 0) {
+
+            // 変更先のメモだけを使用
+
+            record.memo =
+                newMemo;
+
+
+            // 同じ曲の全履歴を統一
+
+            syncSongMemo(
+                newTitle,
+                newArtist,
+                newMemo
+            );
+
+        }
+
+
+        // ===============================
+        // 完全に新しい曲
+        // ===============================
+
+        else {
+
+            // 元の曲のメモは完全に削除
+
+            record.memo =
+                "";
+
+        }
+
+    }
+
+
+    // ===============================
+    // 保存
+    // ===============================
+
+    saveRecords();
+
+
+    // ===============================
+    // 画面更新
+    // ===============================
 
     updateHistory();
+
+
+    if (
+        typeof drawRecentSongs ===
+        "function"
+    ) {
+
+        drawRecentSongs();
+
+    }
+
+
+    if (
+        typeof drawHomeSummary ===
+        "function"
+    ) {
+
+        drawHomeSummary();
+
+    }
+
+
+    if (
+        typeof updateAnalysis ===
+        "function"
+    ) {
+
+        updateAnalysis();
+
+    }
 
 
     closeEditModal();
@@ -585,7 +866,6 @@ function saveEdit() {
     );
 
 }
-
 
 // ===============================
 // 削除
@@ -604,6 +884,10 @@ function openDeleteModal(id) {
 }
 
 
+// ===============================
+// 削除モーダルを閉じる
+// ===============================
+
 function closeDeleteModal() {
 
     deleteModal.classList.add(
@@ -612,6 +896,10 @@ function closeDeleteModal() {
 
 }
 
+
+// ===============================
+// 削除確定
+// ===============================
 
 function deleteRecord() {
 
@@ -636,7 +924,48 @@ function deleteRecord() {
     );
 
 
+    // ===============================
+    // localStorageへ保存
+    // ===============================
+
+    saveRecords();
+
+
+    // ===============================
+    // 画面更新
+    // ===============================
+
     updateHistory();
+
+
+    if (
+        typeof drawRecentSongs ===
+        "function"
+    ) {
+
+        drawRecentSongs();
+
+    }
+
+
+    if (
+        typeof drawHomeSummary ===
+        "function"
+    ) {
+
+        drawHomeSummary();
+
+    }
+
+
+    if (
+        typeof updateAnalysis ===
+        "function"
+    ) {
+
+        updateAnalysis();
+
+    }
 
 
     closeDeleteModal();
@@ -681,114 +1010,152 @@ function showToast(message) {
 
 // 検索
 
-document
-    .getElementById(
+const historySearch =
+    document.getElementById(
         "historySearch"
-    )
-    .addEventListener(
+    );
+
+if (historySearch) {
+
+    historySearch.addEventListener(
         "input",
         resetHistoryPage
     );
+
+}
 
 
 // ===============================
 // 並び替え
 // ===============================
 
-document
-    .getElementById(
+const historySort =
+    document.getElementById(
         "historySort"
-    )
-    .addEventListener(
+    );
+
+if (historySort) {
+
+    historySort.addEventListener(
         "change",
         resetHistoryPage
     );
+
+}
 
 
 // ===============================
 // 編集モーダルを閉じる
 // ===============================
 
-document
-    .getElementById(
+const cancelEdit =
+    document.getElementById(
         "cancelEdit"
-    )
-    .onclick =
-    closeEditModal;
+    );
+
+if (cancelEdit) {
+
+    cancelEdit.onclick =
+        closeEditModal;
+
+}
 
 
 // ===============================
 // モーダル外クリック
 // ===============================
 
-editModal.onclick =
-    (event) => {
+if (editModal) {
 
-        if (
-            event.target ===
-            editModal
-        ) {
+    editModal.onclick =
+        (event) => {
 
-            closeEditModal();
+            if (
+                event.target ===
+                editModal
+            ) {
 
-        }
+                closeEditModal();
 
-    };
+            }
+
+        };
+
+}
 
 
 // ===============================
 // 保存
 // ===============================
 
-document
-    .getElementById(
+const saveEditButton =
+    document.getElementById(
         "saveEdit"
-    )
-    .onclick =
-    saveEdit;
+    );
+
+if (saveEditButton) {
+
+    saveEditButton.onclick =
+        saveEdit;
+
+}
 
 
 // ===============================
 // 削除キャンセル
 // ===============================
 
-document
-    .getElementById(
+const cancelDelete =
+    document.getElementById(
         "cancelDelete"
-    )
-    .onclick =
-    closeDeleteModal;
+    );
+
+if (cancelDelete) {
+
+    cancelDelete.onclick =
+        closeDeleteModal;
+
+}
 
 
 // ===============================
 // 削除確定
 // ===============================
 
-document
-    .getElementById(
+const confirmDelete =
+    document.getElementById(
         "confirmDelete"
-    )
-    .onclick =
-    deleteRecord;
+    );
+
+if (confirmDelete) {
+
+    confirmDelete.onclick =
+        deleteRecord;
+
+}
 
 
 // ===============================
 // 削除モーダル外クリック
 // ===============================
 
-deleteModal.onclick =
-    (event) => {
+if (deleteModal) {
 
-        if (
-            event.target ===
-            deleteModal
-        ) {
+    deleteModal.onclick =
+        (event) => {
 
-            closeDeleteModal();
+            if (
+                event.target ===
+                deleteModal
+            ) {
 
-        }
+                closeDeleteModal();
 
-    };
+            }
+
+        };
+
+}
 
 
 // ===============================

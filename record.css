@@ -112,6 +112,41 @@
 
 
 /* ===============================
+   メモ
+=============================== */
+
+.record-memo {
+    width: 100%;
+    min-height: 100px;
+
+    padding: 12px;
+
+    border: 1px solid #ddd;
+    border-radius: 10px;
+
+    background: #fff;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    line-height: 1.6;
+
+    resize: vertical;
+
+    box-sizing: border-box;
+}
+
+.record-memo:focus {
+    outline: none;
+    border-color: #999;
+}
+
+.record-memo::placeholder {
+    color: #aaa;
+}
+
+
+/* ===============================
    number入力の矢印
    =============================== */
 
@@ -151,7 +186,7 @@
 
 /* 候補1件 */
 
-.input-suggestions > div {
+.input-suggestions>div {
     padding: 12px 14px;
 
     border-bottom: 1px solid #eee;
@@ -161,11 +196,11 @@
     font-size: 15px;
 }
 
-.input-suggestions > div:last-child {
+.input-suggestions>div:last-child {
     border-bottom: none;
 }
 
-.input-suggestions > div:hover {
+.input-suggestions>div:hover {
     background: #fff5f5;
 }
 

@@ -1,3 +1,4 @@
+
 // ===============================
 // DOM
 // ===============================
@@ -93,7 +94,8 @@ else {
         setlist.name;
 
 
-    detailSongList.innerHTML = "";
+    detailSongList.innerHTML =
+        "";
 
 
     // ===============================
@@ -150,7 +152,10 @@ else {
                     );
 
 
+                // ===============================
                 // 採点記録がない場合
+                // ===============================
+
                 if (!record) {
 
                     alert(
@@ -162,11 +167,18 @@ else {
                 }
 
 
+                // ===============================
                 // 曲詳細画面へ
+                //
+                // setlistIdも一緒に渡す
+                // ===============================
+
                 location.href =
                     "index.html?songId=" +
-                    record.id +
-                    "&from=setlist";
+                    encodeURIComponent(record.id) +
+                    "&from=setlist" +
+                    "&setlistId=" +
+                    encodeURIComponent(id);
 
             };
 
@@ -184,7 +196,7 @@ else {
 
 
 // ===============================
-// 戻る
+// セットリスト詳細から戻る
 // ===============================
 
 backBtn.onclick = () => {
@@ -216,7 +228,9 @@ editSetlistBtn.onclick = () => {
 deleteSetlistBtn.onclick = () => {
 
     if (!setlist) {
+
         return;
+
     }
 
 
@@ -231,7 +245,9 @@ deleteSetlistBtn.onclick = () => {
 
 
     if (!result) {
+
         return;
+
     }
 
 
