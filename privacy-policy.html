@@ -122,6 +122,26 @@
             word-break: break-word;
         }
 
+        .back-button {
+    display: block;
+    margin: 12px auto 0;
+    width: calc(100% - 20px);
+    max-width: 800px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.back-button:active {
+    background: #eee;
+}
+
         @media (max-width: 480px) {
             .container {
                 padding: 12px 10px 35px;
@@ -144,6 +164,10 @@
 </head>
 
 <body>
+
+    <button class="back-button" onclick="history.back()">
+    ← 設定に戻る
+</button>
 
 <div class="container">
 
