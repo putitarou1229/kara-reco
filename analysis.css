@@ -2,43 +2,43 @@
 /* 共通 */
 /* ========================= */
 
-* {
+*{
 
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: sans-serif;
-
-}
-
-
-body {
-
-    background: #f5f5f5;
-    padding: 15px;
-
-    padding-bottom: 80px;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:sans-serif;
 
 }
 
 
-h1 {
+body{
 
-    margin-bottom: 20px;
+    background:#f5f5f5;
+    padding:15px;
 
-}
-
-
-h2 {
-
-    margin-bottom: 15px;
+    padding-bottom:80px;
 
 }
 
 
-h3 {
+h1{
 
-    font-size: 16px;
+    margin-bottom:20px;
+
+}
+
+
+h2{
+
+    margin-bottom:15px;
+
+}
+
+
+h3{
+
+    font-size:16px;
 
 }
 
@@ -49,12 +49,12 @@ h3 {
 /* ========================= */
 
 
-section {
+section{
 
-    background: white;
-    border-radius: 16px;
-    padding: 18px;
-    margin-top: 15px;
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    margin-top:15px;
 
 }
 
@@ -65,218 +65,93 @@ section {
 /* ========================= */
 
 
-.summary {
+.summary{
 
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-
-}
-
-
-
-.analysis-card {
-
-    background: white;
-    border-radius: 16px;
-    padding: 18px;
-    text-align: center;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
 
 }
 
 
 
-.analysis-card h3 {
+.analysis-card{
 
-    font-size: 15px;
-    color: #666;
-
-}
-
-
-
-.analysis-card p {
-
-    margin-top: 10px;
-    font-size: 26px;
-    font-weight: bold;
-    color: #2196F3;
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
 
 }
 
 
 
+.analysis-card h3{
 
-/* ========================= */
-/* 最近の調子 */
-/* ========================= */
-
-.growth-card {
-    grid-column: 1 / -1;
-    text-align: left;
-}
-
-
-.growth-card-content {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 20px;
+    font-size:15px;
+    color:#666;
 
 }
 
 
-/* 左側 */
 
-.growth-card-left {
+.analysis-card p{
 
-    flex: 1;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    justify-content: center;
+    margin-top:10px;
+    font-size:26px;
+    font-weight:bold;
+    color:#2196F3;
 
 }
 
 
-.growth-card-left h3 {
 
-    margin: 0;
+/* 成長分析だけ横いっぱい */
 
-    font-size: 15px;
+.growth-card{
 
-    color: #666;
-
-}
-
-
-/* コメント */
-
-.growth-card small {
-
-    display: block;
-
-    margin-top: 7px;
-
-    color: #666;
-
-    font-size: 13px;
-
-    line-height: 1.4;
+    grid-column:1 / -1;
 
 }
 
 
-/* 右側 */
 
-.growth-card-right {
+.growth-card p{
 
-    min-width: 150px;
-
-    text-align: right;
+    color:#4CAF50;
 
 }
 
 
-.growth-card p {
 
-    margin: 0;
+.growth-card small{
 
-    font-size: 32px;
-
-    font-weight: 700;
-
-    line-height: 1.1;
-
-    color: #4CAF50;
-
-    letter-spacing: .3px;
+    display:block;
+    margin-top:10px;
+    color:#666;
+    font-size:14px;
 
 }
 
 
-/* ========================= */
-/* スマホ */
-/* ========================= */
 
-@media(max-width:600px) {
+@media(max-width:600px){
 
-    .analysis-card.growth-card {
+    .summary{
 
-        display: block;
+        grid-template-columns:1fr;
 
     }
 
+    .growth-card{
 
-    .growth-card-content {
-
-        display: flex;
-
-        justify-content: space-between;
-
-        align-items: center;
-
-        gap: 10px;
-
-    }
-
-
-    .growth-card-left {
-
-        flex: 1;
-
-        align-items: flex-start;
-
-    }
-
-
-    .growth-card-left h3 {
-
-        font-size: 14px;
-
-    }
-
-
-    .growth-card small {
-
-        margin-top: 6px;
-
-        font-size: 12px;
-
-        white-space: normal;
-
-    }
-
-
-    .growth-card-right {
-
-        min-width: 0;
-
-        flex: 0 0 auto;
-
-        text-align: right;
-
-    }
-
-
-    .growth-card p {
-
-        margin: 0;
-
-        font-size: 30px;
+        grid-column:auto;
 
     }
 
 }
+
 
 
 /* ========================= */
@@ -284,13 +159,13 @@ section {
 /* ========================= */
 
 
-canvas {
+canvas{
 
-    width: 100% !important;
+    width:100% !important;
 
-    height: auto !important;
+    height:auto !important;
 
-    margin-top: 15px;
+    margin-top:15px;
 
 }
 
@@ -301,45 +176,45 @@ canvas {
 /* ========================= */
 
 
-.rank-item {
+.rank-item{
 
-    display: flex;
+    display:flex;
 
-    justify-content: space-between;
+    justify-content:space-between;
 
-    align-items: center;
+    align-items:center;
 
-    padding: 14px 5px;
+    padding:14px 5px;
 
-    border-bottom: 1px solid #eee;
+    border-bottom:1px solid #eee;
 
-    font-size: 15px;
-
-}
-
-
-
-.rank-item:last-child {
-
-    border-bottom: none;
+    font-size:15px;
 
 }
 
 
 
-.rank-item strong {
+.rank-item:last-child{
 
-    font-size: 16px;
-
-    color: #2196F3;
+    border-bottom:none;
 
 }
 
 
 
-.rank-item small {
+.rank-item strong{
 
-    color: #777;
+    font-size:16px;
+
+    color:#2196F3;
+
+}
+
+
+
+.rank-item small{
+
+    color:#777;
 
 }
 
@@ -350,9 +225,9 @@ canvas {
 /* ========================= */
 
 
-#analysisPage>h2 {
+#analysisPage > h2{
 
-    font-size: 22px;
+    font-size:22px;
 
 }
 
@@ -363,15 +238,15 @@ canvas {
 /* ========================= */
 
 
-button {
+button{
 
-    border: none;
+    border:none;
 
-    border-radius: 10px;
+    border-radius:10px;
 
-    padding: 12px 18px;
+    padding:12px 18px;
 
-    font-size: 15px;
+    font-size:15px;
 
 }
 
@@ -382,74 +257,74 @@ button {
 /* ========================= */
 
 
-@media(max-width:600px) {
+@media(max-width:600px){
 
 
-    body {
+    body{
 
-        padding: 10px;
+        padding:10px;
 
-        padding-bottom: 90px;
-
-    }
-
-
-
-    .summary {
-
-        grid-template-columns: 1fr;
-
-        gap: 10px;
+        padding-bottom:90px;
 
     }
 
 
 
-    .analysis-card {
+    .summary{
 
-        display: flex;
+        grid-template-columns:1fr;
 
-        justify-content: space-between;
-
-        align-items: center;
-
-        padding: 15px 20px;
+        gap:10px;
 
     }
 
 
 
-    .analysis-card h3 {
+    .analysis-card{
 
-        font-size: 14px;
+        display:flex;
 
-    }
+        justify-content:space-between;
 
+        align-items:center;
 
-
-    .analysis-card p {
-
-        margin-top: 0;
-
-        font-size: 26px;
+        padding:15px 20px;
 
     }
 
 
 
-    section {
+    .analysis-card h3{
 
-        padding: 15px;
-
-        border-radius: 14px;
+        font-size:14px;
 
     }
 
 
 
-    canvas {
+    .analysis-card p{
 
-        max-height: 250px;
+        margin-top:0;
+
+        font-size:26px;
+
+    }
+
+
+
+    section{
+
+        padding:15px;
+
+        border-radius:14px;
+
+    }
+
+
+
+    canvas{
+
+        max-height:250px;
 
     }
 

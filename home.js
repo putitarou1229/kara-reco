@@ -145,10 +145,9 @@ function drawRecentSongs() {
                     ${record.score.toFixed(3)}点
                 </div>
 
-               <div class="recent-date">
-    ${record.memo && record.memo.trim() !== "" ? '<span class="memoIcon">📝</span>' : ""}
-    ${record.date}
-</div>
+                <div class="recent-date">
+                    ${record.date}
+                </div>
 
             </div>
 

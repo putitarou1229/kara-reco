@@ -323,136 +323,77 @@ function drawAnalysis() {
 
 
     // ===============================
-// 既存の点数チャートを削除
-// ===============================
+    // 既存の点数チャートを削除
+    // ===============================
 
-if (scoreChart) {
+    if (scoreChart) {
 
-    scoreChart.destroy();
+        scoreChart.destroy();
 
-    scoreChart = null;
+        scoreChart = null;
 
-}
-
-
-const scoreCanvas =
-    document.getElementById(
-        "scoreChart"
-    );
+    }
 
 
-// ===============================
-// Y軸の自動調整
-// ===============================
-
-const recentMin =
-    Math.min(...recentScores);
-
-const recentMax =
-    Math.max(...recentScores);
-
-let chartMin;
-let chartMax;
-
-
-// 90点以上が中心
-if (recentMin >= 90) {
-
-    chartMin = 90;
-    chartMax = 100;
-
-}
-
-
-// 80点以上が中心
-else if (recentMin >= 80) {
-
-    chartMin = 70;
-    chartMax = 100;
-
-}
-
-
-// 70点以上が中心
-else if (recentMin >= 70) {
-
-    chartMin = 60;
-    chartMax = 100;
-
-}
-
-
-// それ以下
-else {
-
-    chartMin = 50;
-
-    chartMax =
-        Math.min(
-            100,
-            Math.ceil(recentMax / 10) * 10 + 10
+    const scoreCanvas =
+        document.getElementById(
+            "scoreChart"
         );
 
-}
 
+    if (
+        scoreCanvas &&
+        typeof Chart !== "undefined"
+    ) {
 
-// ===============================
-// 点数チャート作成
-// ===============================
+        scoreChart =
+            new Chart(
+                scoreCanvas,
+                {
 
-if (
-    scoreCanvas &&
-    typeof Chart !== "undefined"
-) {
+                    type: "line",
 
-    scoreChart =
-        new Chart(
-            scoreCanvas,
-            {
+                    data: {
 
-                type: "line",
+                        labels:
+                            recentLabels,
 
-                data: {
+                        datasets: [{
 
-                    labels:
-                        recentLabels,
+                            label: "点数",
 
-                    datasets: [{
+                            data:
+                                recentScores,
 
-                        label: "点数",
+                            tension: 0.3,
 
-                        data:
-                            recentScores,
+                            pointRadius: 5,
 
-                        tension: 0.3,
+                            pointHoverRadius: 7
 
-                        pointRadius: 5,
+                        }]
 
-                        pointHoverRadius: 7
+                    },
 
-                    }]
+                    options: {
 
-                },
+                        responsive: true,
 
-                options: {
+                        maintainAspectRatio: true,
 
-                    responsive: true,
+                        scales: {
 
-                    maintainAspectRatio: true,
+                            y: {
 
-                    scales: {
+                                min: 50,
 
-                        y: {
+                                max: 100,
 
-                            min: chartMin,
+                                ticks: {
 
-                            max: chartMax,
+                                    stepSize: 5
 
-                            ticks: {
-
-                                stepSize: 10,
-
-                                precision: 0
+                                }
 
                             }
 
@@ -461,217 +402,162 @@ if (
                     }
 
                 }
+            );
 
-            }
+    }
+
+
+    // ===============================
+    // 得点分布
+    // ===============================
+
+    const ranges = {
+
+        "95〜100": 0,
+
+        "90〜94": 0,
+
+        "85〜89": 0,
+
+        "80〜84": 0,
+
+        "75〜79": 0,
+
+        "70〜74": 0,
+
+        "60〜69": 0,
+
+        "50〜59": 0,
+
+        "50未満": 0
+
+    };
+
+
+    scores.forEach(score => {
+
+        if (score >= 95) {
+
+            ranges["95〜100"]++;
+
+        }
+
+        else if (score >= 90) {
+
+            ranges["90〜94"]++;
+
+        }
+
+        else if (score >= 85) {
+
+            ranges["85〜89"]++;
+
+        }
+
+        else if (score >= 80) {
+
+            ranges["80〜84"]++;
+
+        }
+
+        else if (score >= 75) {
+
+            ranges["75〜79"]++;
+
+        }
+
+        else if (score >= 70) {
+
+            ranges["70〜74"]++;
+
+        }
+
+        else if (score >= 60) {
+
+            ranges["60〜69"]++;
+
+        }
+
+        else if (score >= 50) {
+
+            ranges["50〜59"]++;
+
+        }
+
+        else {
+
+            ranges["50未満"]++;
+
+        }
+
+    });
+
+
+    // ===============================
+    // 既存の得点分布チャートを削除
+    // ===============================
+
+    if (distributionChart) {
+
+        distributionChart.destroy();
+
+        distributionChart = null;
+
+    }
+
+
+    const distributionCanvas =
+        document.getElementById(
+            "distributionChart"
         );
 
-}
 
-// ===============================
-// 得点分布
-// ===============================
+    if (
+        distributionCanvas &&
+        typeof Chart !== "undefined"
+    ) {
 
-const ranges = {
+        distributionChart =
+            new Chart(
+                distributionCanvas,
+                {
 
-    "95〜100": 0,
-    "90〜94": 0,
-    "85〜89": 0,
-    "80〜84": 0,
-    "75〜79": 0,
-    "70〜74": 0,
-    "60〜69": 0,
-    "50〜59": 0,
-    "50未満": 0
+                    type: "bar",
 
-};
+                    data: {
 
+                        labels:
+                            Object.keys(
+                                ranges
+                            ),
 
-scores.forEach(score => {
+                        datasets: [{
 
-    if (score >= 95) {
+                            label: "曲数",
 
-        ranges["95〜100"]++;
+                            data:
+                                Object.values(
+                                    ranges
+                                )
 
-    }
+                        }]
 
-    else if (score >= 90) {
+                    },
 
-        ranges["90〜94"]++;
+                    options: {
 
-    }
+                        responsive: true,
 
-    else if (score >= 85) {
-
-        ranges["85〜89"]++;
-
-    }
-
-    else if (score >= 80) {
-
-        ranges["80〜84"]++;
-
-    }
-
-    else if (score >= 75) {
-
-        ranges["75〜79"]++;
-
-    }
-
-    else if (score >= 70) {
-
-        ranges["70〜74"]++;
-
-    }
-
-    else if (score >= 60) {
-
-        ranges["60〜69"]++;
-
-    }
-
-    else if (score >= 50) {
-
-        ranges["50〜59"]++;
-
-    }
-
-    else {
-
-        ranges["50未満"]++;
-
-    }
-
-});
-
-
-// ===============================
-// Y軸の自動調整
-// ===============================
-
-const distributionValues =
-    Object.values(ranges);
-
-const maxCount =
-    Math.max(...distributionValues);
-
-
-// 最大曲数に応じて目盛り間隔を変更
-let stepSize;
-
-if (maxCount <= 10) {
-
-    stepSize = 1;
-
-}
-
-else if (maxCount <= 30) {
-
-    stepSize = 5;
-
-}
-
-else if (maxCount <= 100) {
-
-    stepSize = 10;
-
-}
-
-else {
-
-    stepSize = 20;
-
-}
-
-
-// Y軸の最大値
-const yMax =
-    Math.ceil(
-        (maxCount + stepSize) /
-        stepSize
-    ) * stepSize;
-
-
-// ===============================
-// 既存の得点分布チャートを削除
-// ===============================
-
-if (distributionChart) {
-
-    distributionChart.destroy();
-
-    distributionChart = null;
-
-}
-
-
-const distributionCanvas =
-    document.getElementById(
-        "distributionChart"
-    );
-
-
-if (
-    distributionCanvas &&
-    typeof Chart !== "undefined"
-) {
-
-    distributionChart =
-        new Chart(
-            distributionCanvas,
-            {
-
-                type: "bar",
-
-                data: {
-
-                    labels:
-                        Object.keys(ranges),
-
-                    datasets: [{
-
-                        label: "曲数",
-
-                        data:
-                            distributionValues
-
-                    }]
-
-                },
-
-                options: {
-
-                    responsive: true,
-
-                    maintainAspectRatio: true,
-
-                    scales: {
-
-                        y: {
-
-                            beginAtZero: true,
-
-                            max: yMax,
-
-                            ticks: {
-
-                                stepSize:
-                                    stepSize,
-
-                                precision: 0
-
-                            }
-
-                        }
+                        maintainAspectRatio: true
 
                     }
 
                 }
+            );
 
-            }
-        );
+    }
 
-}
+
     // ===============================
     // 自己ベストランキング
     // ===============================

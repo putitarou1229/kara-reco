@@ -110,79 +110,79 @@ function showPage(pageName) {
     );
 
 
-    if (targetPage) {
+   if (targetPage) {
 
-        targetPage.classList.remove("hidden");
+    targetPage.classList.remove("hidden");
 
-        console.log(
-            "表示しました:",
-            targetPage.id
-        );
+    console.log(
+        "表示しました:",
+        targetPage.id
+    );
 
 
-        // ===============================
-        // ホームを開いたとき
-        // ===============================
+    // ===============================
+    // ホームを開いたとき
+    // ===============================
 
-        if (pageName === "home") {
+    if (pageName === "home") {
 
-            if (
-                typeof drawHomeSummary ===
-                "function"
-            ) {
+        if (
+            typeof drawHomeSummary ===
+            "function"
+        ) {
 
-                drawHomeSummary();
-
-            }
-
-            if (
-                typeof drawRecentSongs ===
-                "function"
-            ) {
-
-                drawRecentSongs();
-
-            }
+            drawHomeSummary();
 
         }
 
+        if (
+            typeof drawRecentSongs ===
+            "function"
+        ) {
 
-        // ===============================
-        // 履歴を開いたとき
-        // ===============================
-
-        if (pageName === "history") {
-
-            if (
-                typeof updateHistory ===
-                "function"
-            ) {
-
-                updateHistory();
-
-            }
+            drawRecentSongs();
 
         }
 
+    }
 
-        // ===============================
-        // 分析を開いたとき
-        // ===============================
 
-        if (pageName === "analysis") {
+    // ===============================
+    // 履歴を開いたとき
+    // ===============================
 
-            if (
-                typeof drawAnalysis ===
-                "function"
-            ) {
+    if (pageName === "history") {
 
-                drawAnalysis();
+        if (
+            typeof updateHistory ===
+            "function"
+        ) {
 
-            }
+            updateHistory();
 
         }
 
-    } else {
+    }
+
+
+    // ===============================
+    // 分析を開いたとき
+    // ===============================
+
+    if (pageName === "analysis") {
+
+        if (
+            typeof drawAnalysis ===
+            "function"
+        ) {
+
+            drawAnalysis();
+
+        }
+
+    }
+
+}else {
 
         console.log(
             "ページが見つかりません:",
@@ -217,12 +217,7 @@ function openSongDetail(song, from = "home") {
     console.log("from:", from);
 
 
-    currentSong =
-        records.find(
-            record =>
-                record.id === song.id
-        ) || song;
-
+    currentSong = song;
     currentSongFrom = from;
 
     const detailPage =
@@ -304,162 +299,26 @@ function openSongDetail(song, from = "home") {
 
     if (memoElement) {
 
-        // ===============================
-        // この曲と完全一致する記録を取得
-        // ===============================
+        const songKey =
+            `${song.title}__${song.artist}`;
 
-        const normalizedTitle =
-            String(song.title || "")
-                .trim()
-                .toLowerCase()
-                .replace(/\s+/g, "");
-
-        const normalizedArtist =
-            String(song.artist || "")
-                .trim()
-                .toLowerCase()
-                .replace(/\s+/g, "");
-
-
-        const sameSongRecords =
-            records.filter(record => {
-
-                const recordTitle =
-                    String(record.title || "")
-                        .trim()
-                        .toLowerCase()
-                        .replace(/\s+/g, "");
-
-                const recordArtist =
-                    String(record.artist || "")
-                        .trim()
-                        .toLowerCase()
-                        .replace(/\s+/g, "");
-
-
-                return (
-                    recordTitle === normalizedTitle &&
-                    recordArtist === normalizedArtist
-                );
-
-            });
-
-
-        // ===============================
-        // 既存のメモを取得
-        // ===============================
-
-        let currentMemo = "";
-
-
-        for (
-            const record
-            of sameSongRecords
-        ) {
-
-            const memo =
-                String(
-                    record.memo || ""
-                ).trim();
-
-
-            if (memo !== "") {
-
-                currentMemo =
-                    memo;
-
-                break;
-
-            }
-
-        }
-
-
-        // ===============================
-        // メモ欄に表示
-        // ===============================
+        const songMemos =
+            JSON.parse(
+                localStorage.getItem("songMemos") || "{}"
+            );
 
         memoElement.value =
-            currentMemo;
-
-
-        // ===============================
-        // メモ入力時
-        // ===============================
+            songMemos[songKey] || "";
 
         memoElement.oninput = () => {
 
-            const memo =
-                memoElement.value.trim();
+            songMemos[songKey] =
+                memoElement.value;
 
-
-            // ===============================
-            // 同じ曲の全履歴へ反映
-            // ===============================
-
-            records.forEach(record => {
-
-                const recordTitle =
-                    String(record.title || "")
-                        .trim()
-                        .toLowerCase()
-                        .replace(/\s+/g, "");
-
-                const recordArtist =
-                    String(record.artist || "")
-                        .trim()
-                        .toLowerCase()
-                        .replace(/\s+/g, "");
-
-
-                if (
-                    recordTitle ===
-                    normalizedTitle &&
-                    recordArtist ===
-                    normalizedArtist
-                ) {
-
-                    record.memo =
-                        memo;
-
-                }
-
-            });
-
-
-            // ===============================
-            // recordsを保存
-            // ===============================
-
-            saveRecords();
-
-
-            // ===============================
-            // 履歴を更新
-            // ===============================
-
-            if (
-                typeof updateHistory ===
-                "function"
-            ) {
-
-                updateHistory();
-
-            }
-
-
-            // ===============================
-            // ホームを更新
-            // ===============================
-
-            if (
-                typeof drawRecentSongs ===
-                "function"
-            ) {
-
-                drawRecentSongs();
-
-            }
+            localStorage.setItem(
+                "songMemos",
+                JSON.stringify(songMemos)
+            );
 
         };
 
@@ -885,22 +744,17 @@ if (backBtn) {
             );
 
 
-            // ===============================
             // セットリストから来た場合
-            // ===============================
-
             if (currentSongFrom === "setlist") {
 
                 history.back();
 
                 return;
+
             }
 
 
-            // ===============================
             // 履歴から来た場合
-            // ===============================
-
             if (currentSongFrom === "history") {
 
                 showPage("history");
@@ -910,10 +764,7 @@ if (backBtn) {
             }
 
 
-            // ===============================
             // ホームから来た場合
-            // ===============================
-
             showPage("home");
 
         }
