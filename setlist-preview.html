@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+
+    <title>セットリスト編集 | カラレコ</title>
+
+    <!-- 共通CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="setlist.css">
+
+    <!-- セットリスト編集画面専用CSS -->
+    <style>
+        #setlistPreviewPage {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 32px;
+        }
+
+        .preview-page-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .preview-page-header h1 {
+            margin: 0;
+            font-size: 1.35rem;
+            line-height: 1.4;
+        }
+
+        .preview-back-btn {
+            flex-shrink: 0;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #f0f0f0;
+            color: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .preview-setlist-name {
+            margin: 0 0 8px;
+            font-size: 1.1rem;
+            overflow-wrap: anywhere;
+        }
+
+        .preview-description {
+            margin: 0 0 16px;
+            color: #666;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .preview-song-count {
+            margin: 0 0 16px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .setlist-preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .preview-song-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 1px solid #e3e3e3;
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .preview-song-item.dragging {
+            opacity: 0.55;
+        }
+
+        .preview-drag-handle {
+            flex-shrink: 0;
+            border: 0;
+            background: transparent;
+            color: #777;
+            font-size: 1.25rem;
+            padding: 8px 4px;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .preview-song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .preview-song-title {
+            margin: 0 0 4px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .preview-song-artist {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+            overflow-wrap: anywhere;
+        }
+
+        .preview-song-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .preview-song-actions button {
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .preview-detail-btn {
+            background: #eaf2ff;
+            color: #174ea6;
+        }
+
+        .preview-remove-btn {
+            background: #fff0f0;
+            color: #a12626;
+        }
+
+        .preview-empty {
+            padding: 28px 16px;
+            text-align: center;
+            color: #777;
+            border: 1px dashed #ccc;
+            border-radius: 12px;
+        }
+
+        .preview-page-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .preview-page-buttons button {
+            width: 100%;
+            min-height: 48px;
+            border: 0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #savePreviewSetlistBtn {
+            background: #287d46;
+            color: #fff;
+        }
+
+        #cancelPreviewSetlistBtn {
+            background: #eee;
+            color: #333;
+        }
+
+        @media (max-width: 420px) {
+            #setlistPreviewPage {
+                padding: 12px;
+            }
+
+            .preview-song-item {
+                gap: 6px;
+                padding: 9px;
+            }
+
+            .preview-song-actions button {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+
+    <!-- 後で作成するJavaScript -->
+    <script src="setlist-preview.js" defer></script>
+</head>
+
+<body>
+
+    <main id="setlistPreviewPage">
+
+        <!-- ヘッダー -->
+        <header class="preview-page-header">
+
+            <button
+                id="backToSetlistBtn"
+                class="preview-back-btn"
+                type="button"
+                aria-label="セットリスト一覧に戻る"
+            >
+                ← 戻る
+            </button>
+
+            <h1>🎤 セットリスト編集</h1>
+
+        </header>
+
+
+        <!-- セットリスト編集 -->
+        <section
+            class="setlist-section"
+            aria-labelledby="previewSetlistTitle"
+        >
+
+            <h2
+                id="previewSetlistTitle"
+                class="preview-setlist-name"
+            >
+                自動セットリスト
+            </h2>
+
+            <p class="preview-description">
+                曲の順番を変更したり、曲の詳細を確認したりできます。
+                編集内容は「保存」を押すまで確定されません。
+            </p>
+
+            <p
+                id="previewSongCount"
+                class="preview-song-count"
+            >
+                0曲
+            </p>
+
+
+            <!-- JavaScriptで曲一覧を表示 -->
+            <div
+                id="setlistPreviewList"
+                class="setlist-preview-list"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- 曲がない場合 -->
+            <p
+                id="previewEmptyMessage"
+                class="preview-empty"
+                hidden
+            >
+                セットリストに曲がありません。
+                戻って別のセットを作成してください。
+            </p>
+
+
+            <!-- ボタン -->
+            <div class="preview-page-buttons">
+
+                <button
+                    id="savePreviewSetlistBtn"
+                    type="button"
+                >
+                    ✓ このセットリストを保存
+                </button>
+
+                <button
+                    id="cancelPreviewSetlistBtn"
+                    type="button"
+                >
+                    キャンセル
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

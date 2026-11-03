@@ -11,6 +11,7 @@ function saveRecords() {
 
 }
 
+
 // ===============================
 // ボタン処理
 // ===============================
@@ -21,26 +22,33 @@ const addRecordBtn =
 const recordBackBtn =
     document.getElementById("recordBackBtn");
 
+
 if (addRecordBtn) {
 
-    addRecordBtn.addEventListener("click", () => {
+    addRecordBtn.addEventListener(
+        "click",
+        () => {
 
-        showPage("record");
+            showPage("record");
 
-        setTodayDate();
+            setTodayDate();
 
-    });
+        }
+    );
 
 }
 
 
 if (recordBackBtn) {
 
-    recordBackBtn.addEventListener("click", () => {
+    recordBackBtn.addEventListener(
+        "click",
+        () => {
 
-        showPage("home");
+            showPage("home");
 
-    });
+        }
+    );
 
 }
 
@@ -84,13 +92,13 @@ function getUniqueSongs() {
 
         if (!map.has(key)) {
 
-            map.set(key, {
-
-                title: record.title,
-
-                artist: record.artist
-
-            });
+            map.set(
+                key,
+                {
+                    title: record.title,
+                    artist: record.artist
+                }
+            );
 
         }
 
@@ -100,6 +108,90 @@ function getUniqueSongs() {
     return [
         ...map.values()
     ];
+
+}
+
+
+// ===============================
+// 同じ曲の記録を取得
+// ===============================
+// 曲名＋アーティストが一致するもの
+// 空白・大文字小文字は無視
+// ===============================
+
+function getSameSongRecords(
+    title,
+    artist
+) {
+
+    const normalizedTitle =
+        normalizeText(title);
+
+    const normalizedArtist =
+        normalizeText(artist);
+
+
+    if (
+        !normalizedTitle ||
+        !normalizedArtist
+    ) {
+
+        return [];
+
+    }
+
+
+    return records.filter(record => {
+
+        return (
+            normalizeText(record.title) ===
+            normalizedTitle
+            &&
+            normalizeText(record.artist) ===
+            normalizedArtist
+        );
+
+    });
+
+}
+
+
+// ===============================
+// 同じ曲の既存メモを取得
+// ===============================
+// 同じ曲の記録の中から
+// 最初に見つかった空でないメモを取得
+// ===============================
+
+function getSongMemo(
+    title,
+    artist
+) {
+
+    const sameSongRecords =
+        getSameSongRecords(
+            title,
+            artist
+        );
+
+
+    const memoRecord =
+        sameSongRecords.find(
+            record =>
+                typeof record.memo === "string"
+                &&
+                record.memo.trim() !== ""
+        );
+
+
+    if (!memoRecord) {
+
+        return "";
+
+    }
+
+
+    return memoRecord.memo.trim();
 
 }
 
@@ -120,7 +212,8 @@ if (recordTitle) {
                     .toLowerCase();
 
 
-            titleSuggestions.innerHTML = "";
+            titleSuggestions.innerHTML =
+                "";
 
 
             if (!keyword) {
@@ -164,13 +257,21 @@ if (recordTitle) {
                     );
 
 
-                item.type = "button";
+                item.type =
+                    "button";
 
 
                 item.innerHTML = `
                     <strong>${song.title}</strong>
                     <span>${song.artist}</span>
                 `;
+                // 候補を選ぶときに入力欄のフォーカスを維持する
+item.addEventListener(
+    "pointerdown",
+    event => {
+        event.preventDefault();
+    }
+);
 
 
                 item.addEventListener(
@@ -187,6 +288,23 @@ if (recordTitle) {
 
                         titleSuggestions.classList.add(
                             "hidden"
+                        );
+
+
+                        // ===============================
+                        // 既存曲のメモは新規登録時に
+                        // 自動的に引き継ぐ
+                        // ===============================
+
+                        console.log(
+                            "既存曲を選択:",
+                            song.title,
+                            song.artist,
+                            "既存メモ:",
+                            getSongMemo(
+                                song.title,
+                                song.artist
+                            )
                         );
 
                     }
@@ -226,7 +344,8 @@ if (recordArtist) {
                     .toLowerCase();
 
 
-            artistSuggestions.innerHTML = "";
+            artistSuggestions.innerHTML =
+                "";
 
 
             if (!keyword) {
@@ -241,26 +360,22 @@ if (recordArtist) {
 
 
             const artists = [
-
                 ...new Set(
-
                     getUniqueSongs()
-                        .map(song =>
-                            song.artist
+                        .map(
+                            song =>
+                                song.artist
                         )
-
                 )
-
             ];
 
 
             const matchedArtists =
-                artists.filter(artist =>
-
-                    artist
-                        .toLowerCase()
-                        .includes(keyword)
-
+                artists.filter(
+                    artist =>
+                        artist
+                            .toLowerCase()
+                            .includes(keyword)
                 );
 
 
@@ -286,12 +401,20 @@ if (recordArtist) {
                         );
 
 
-                    item.type = "button";
+                    item.type =
+                        "button";
 
 
                     item.innerHTML = `
                         <strong>${artist}</strong>
                     `;
+                    // 候補を選ぶときに入力欄のフォーカスを維持する
+item.addEventListener(
+    "pointerdown",
+    event => {
+        event.preventDefault();
+    }
+);
 
 
                     item.addEventListener(
@@ -342,11 +465,62 @@ const recordOcrInput =
         "recordOcrInput"
     );
 
+
+// ===============================
+// 📷 今すぐ記録
+// ===============================
+
+const quickRecordBtn =
+    document.getElementById(
+        "quickRecordBtn"
+    );
+
+
+if (quickRecordBtn) {
+
+    quickRecordBtn.addEventListener(
+        "click",
+        () => {
+
+            // 記録画面へ移動
+            showPage("record");
+
+
+            // 歌唱日を今日にする
+            setTodayDate();
+
+
+            // 少し待ってからカメラを起動
+            setTimeout(
+                () => {
+
+                    if (recordOcrInput) {
+
+                        recordOcrInput.click();
+
+                    }
+
+                },
+                150
+            );
+
+        }
+    );
+
+}
+
+
+// ===============================
 // Capacitor Camera
+// ===============================
+
 const Camera =
     window.Capacitor?.Plugins?.Camera;
 
-console.log("Camera:", Camera);
+console.log(
+    "Camera:",
+    Camera
+);
 
 
 if (
@@ -380,7 +554,7 @@ if (
 
 
             recordOcrBtn.textContent =
-                "🔍 OCR解析中...";
+                "🔍 画像解析中...";
 
 
             recordOcrBtn.disabled =
@@ -394,7 +568,7 @@ if (
                 // ===============================
 
                 const base64 =
-                    await fileToBase64(
+                    await resizeImageToBase64(
                         file
                     );
 
@@ -407,21 +581,17 @@ if (
                     await fetch(
                         "https://ocr-nqod4cxoqq-uc.a.run.app",
                         {
-
                             method: "POST",
 
                             headers: {
-
                                 "Content-Type":
                                     "application/json"
-
                             },
 
                             body:
                                 JSON.stringify({
                                     image: base64
                                 })
-
                         }
                     );
 
@@ -520,10 +690,10 @@ if (
                         .value =
                         result.date;
 
-                } else {
+                }
+                else {
 
                     // OCRから日付が取れなければ今日
-
                     setTodayDate();
 
                 }
@@ -538,8 +708,8 @@ if (
                     result.artist
                 );
 
-
-            } catch (error) {
+            }
+            catch (error) {
 
                 console.error(
                     "OCRエラー:",
@@ -551,8 +721,8 @@ if (
                     "OCRの解析に失敗しました。"
                 );
 
-
-            } finally {
+            }
+            finally {
 
                 recordOcrBtn.textContent =
                     "📷で自動入力";
@@ -574,10 +744,10 @@ if (
 
 
 // ===============================
-// File → Base64
+// OCR用画像を縮小してBase64化
 // ===============================
 
-function fileToBase64(file) {
+function resizeImageToBase64(file) {
 
     return new Promise(
         (resolve, reject) => {
@@ -588,15 +758,133 @@ function fileToBase64(file) {
 
             reader.onload = () => {
 
-                const result =
+                const img =
+                    new Image();
+
+
+                img.onload = () => {
+
+                    // -------------------------------
+                    // OCR用の最大サイズ
+                    // -------------------------------
+
+                    const MAX_SIZE =
+                        1200;
+
+
+                    let width =
+                        img.width;
+
+                    let height =
+                        img.height;
+
+
+                    // -------------------------------
+                    // 長辺を1200pxに縮小
+                    // -------------------------------
+
+                    if (
+                        width > MAX_SIZE ||
+                        height > MAX_SIZE
+                    ) {
+
+                        if (
+                            width > height
+                        ) {
+
+                            height =
+                                Math.round(
+                                    height *
+                                    MAX_SIZE /
+                                    width
+                                );
+
+                            width =
+                                MAX_SIZE;
+
+                        }
+                        else {
+
+                            width =
+                                Math.round(
+                                    width *
+                                    MAX_SIZE /
+                                    height
+                                );
+
+                            height =
+                                MAX_SIZE;
+
+                        }
+
+                    }
+
+
+                    // -------------------------------
+                    // Canvasに描画
+                    // -------------------------------
+
+                    const canvas =
+                        document.createElement(
+                            "canvas"
+                        );
+
+
+                    canvas.width =
+                        width;
+
+                    canvas.height =
+                        height;
+
+
+                    const ctx =
+                        canvas.getContext(
+                            "2d"
+                        );
+
+
+                    ctx.drawImage(
+                        img,
+                        0,
+                        0,
+                        width,
+                        height
+                    );
+
+
+                    // -------------------------------
+                    // JPEGに変換
+                    // 品質80%
+                    // -------------------------------
+
+                    const dataUrl =
+                        canvas.toDataURL(
+                            "image/jpeg",
+                            0.8
+                        );
+
+
+                    // -------------------------------
+                    // Base64部分だけ取り出す
+                    // -------------------------------
+
+                    const base64 =
+                        dataUrl.split(",")[1];
+
+
+                    resolve(
+                        base64
+                    );
+
+                };
+
+
+                img.onerror =
+                    reject;
+
+
+                img.src =
                     reader.result;
-
-
-                const base64 =
-                    result.split(",")[1];
-
-
-                resolve(base64);
 
             };
 
@@ -624,29 +912,39 @@ function extractRecordData(text) {
     const lines =
         text
             .split("\n")
-            .map(line =>
-                line
-                    .replace(/\s+/g, " ")
-                    .trim()
+            .map(
+                line =>
+                    line
+                        .replace(/\s+/g, " ")
+                        .trim()
             )
-            .filter(line => line);
+            .filter(
+                line => line
+            );
 
 
     let title = "";
+
     let artist = "";
+
     let score = "";
+
     let date = "";
+
 
     // ===============================
     // JOYSOUND判定
     // ===============================
 
     const isJoysound =
-        lines.some(line =>
-            line.includes("曲名")
-        ) &&
-        lines.some(line =>
-            line.includes("歌手名")
+        lines.some(
+            line =>
+                line.includes("曲名")
+        )
+        &&
+        lines.some(
+            line =>
+                line.includes("歌手名")
         );
 
 
@@ -658,8 +956,11 @@ function extractRecordData(text) {
 
 
         let joyTitle = "";
+
         let joyArtist = "";
+
         let joyScore = "";
+
         let joyDate = "";
 
 
@@ -668,19 +969,18 @@ function extractRecordData(text) {
         // ===============================
 
         const titleLabelIndex =
-            lines.findIndex(line =>
-                line.includes("曲名")
+            lines.findIndex(
+                line =>
+                    line.includes("曲名")
             );
+
 
         const artistLabelIndex =
-            lines.findIndex(line =>
-                line.includes("歌手名")
+            lines.findIndex(
+                line =>
+                    line.includes("歌手名")
             );
 
-
-        // --------------------------------
-        // 曲名・歌手名より後の候補
-        // --------------------------------
 
         const joyCandidates =
             lines
@@ -690,67 +990,79 @@ function extractRecordData(text) {
                         artistLabelIndex
                     ) + 1
                 )
-                .filter(line => {
+                .filter(
+                    line => {
 
-                    if (!line) {
-                        return false;
+                        if (!line) {
+
+                            return false;
+
+                        }
+
+
+                        const ignore = [
+
+                            "曲名",
+                            "歌手名",
+                            "JOYSOUND",
+                            "分析採点",
+                            "分析専",
+                            "マスター",
+                            "総合得点",
+                            "TOTAL",
+                            "全国平均",
+                            "全国順位",
+                            "ゲスト",
+                            "さん",
+                            "音程",
+                            "安定感",
+                            "抑揚",
+                            "ロングトーン",
+                            "テクニック",
+                            "総評",
+                            "詳細",
+                            "ビブラートタイプ",
+                            "リズム",
+                            "後ろノリ",
+                            "前ノリ",
+                            "次へ",
+                            "プレビュー",
+                            "マイルームに保存",
+                            "演奏停止",
+                            "演奏停止で終了"
+
+                        ];
+
+
+                        if (
+                            ignore.some(
+                                word =>
+                                    line.includes(
+                                        word
+                                    )
+                            )
+                        ) {
+
+                            return false;
+
+                        }
+
+
+                        if (
+                            /^[\d\s.,/]+$/.test(
+                                line
+                            )
+                        ) {
+
+                            return false;
+
+                        }
+
+
+                        return true;
+
                     }
-
-
-                    // JOYSOUNDのラベル類
-                    const ignore = [
-
-                        "曲名",
-                        "歌手名",
-                        "JOYSOUND",
-                        "分析採点",
-                        "分析専",
-                        "マスター",
-                        "総合得点",
-                        "TOTAL",
-                        "全国平均",
-                        "全国順位",
-                        "ゲスト",
-                        "さん",
-                        "音程",
-                        "安定感",
-                        "抑揚",
-                        "ロングトーン",
-                        "テクニック",
-                        "総評",
-                        "詳細",
-                        "ビブラートタイプ",
-                        "リズム",
-                        "後ろノリ",
-                        "前ノリ",
-                        "次へ",
-                        "プレビュー",
-                        "マイルームに保存",
-                        "演奏停止",
-                        "演奏停止で終了"
-                    ];
-
-
-                    if (
-                        ignore.some(word =>
-                            line.includes(word)
-                        )
-                    ) {
-                        return false;
-                    }
-
-
-                    // 数字だけ
-                    if (
-                        /^[\d\s.,/]+$/.test(line)
-                    ) {
-                        return false;
-                    }
-
-
-                    return true;
-
-                });
+                );
 
 
         console.log(
@@ -788,6 +1100,7 @@ function extractRecordData(text) {
 
 
         // ♪ を削除
+
         joyArtist =
             joyArtist
                 .replace(/^♪\s*/, "")
@@ -801,26 +1114,37 @@ function extractRecordData(text) {
         joyScore = "";
 
 
-        // ===============================
-        // 総合得点の位置を探す
-        // ===============================
-
         const totalIndex =
-    lines.findIndex(line => {
+            lines.findIndex(
+                line => {
 
-        const clean =
-            line
-                .replace(/\s+/g, "")
-                .trim();
+                    const clean =
+                        line
+                            .replace(
+                                /\s+/g,
+                                ""
+                            )
+                            .trim();
 
-        return (
-            clean.includes("総合得点") ||
-            clean.includes("總合得点") ||
-            clean === "TOTAL" ||
-            clean.includes("TOTAL")
-        );
 
-    });
+                    return (
+                        clean.includes(
+                            "総合得点"
+                        )
+                        ||
+                        clean.includes(
+                            "總合得点"
+                        )
+                        ||
+                        clean === "TOTAL"
+                        ||
+                        clean.includes(
+                            "TOTAL"
+                        )
+                    );
+
+                }
+            );
 
 
         console.log(
@@ -829,11 +1153,9 @@ function extractRecordData(text) {
         );
 
 
-        // ===============================
-        // 総合得点付近から本人スコアを探す
-        // ===============================
-
-        if (totalIndex !== -1) {
+        if (
+            totalIndex !== -1
+        ) {
 
             const scoreArea =
                 lines.slice(
@@ -852,27 +1174,31 @@ function extractRecordData(text) {
 
 
             let integerPart = "";
+
             let decimalPart = "";
 
 
             // ===============================
             // 整数部分
-            // 例：
-            //
-            // 97
-            // 100
             // ===============================
 
-            for (const line of scoreArea) {
+            for (
+                const line of scoreArea
+            ) {
 
                 const clean =
                     line
-                        .replace(/\s+/g, "")
+                        .replace(
+                            /\s+/g,
+                            ""
+                        )
                         .trim();
 
 
                 if (
-                    /^(100|[0-9]{1,2})$/.test(clean)
+                    /^(100|[0-9]{1,2})$/.test(
+                        clean
+                    )
                 ) {
 
                     const value =
@@ -904,28 +1230,27 @@ function extractRecordData(text) {
 
             // ===============================
             // 小数部分
-            //
-            // 例：
-            // 214.
-            // .000
             // ===============================
 
             if (integerPart) {
 
-                for (const line of scoreArea) {
+                for (
+                    const line of scoreArea
+                ) {
 
                     const clean =
                         line
-                            .replace(/\s+/g, "")
+                            .replace(
+                                /\s+/g,
+                                ""
+                            )
                             .trim();
 
 
-                    // ---------------------------
-                    // 214.
-                    // ---------------------------
-
                     if (
-                        /^\d{3}\.$/.test(clean)
+                        /^\d{3}\.$/.test(
+                            clean
+                        )
                     ) {
 
                         decimalPart =
@@ -939,12 +1264,10 @@ function extractRecordData(text) {
                     }
 
 
-                    // ---------------------------
-                    // .000
-                    // ---------------------------
-
                     if (
-                        /^\.\d{3}$/.test(clean)
+                        /^\.\d{3}$/.test(
+                            clean
+                        )
                     ) {
 
                         decimalPart =
@@ -995,7 +1318,6 @@ function extractRecordData(text) {
 
             }
 
-
         }
 
 
@@ -1003,7 +1325,9 @@ function extractRecordData(text) {
         // 日付
         // ===============================
 
-        for (const line of lines) {
+        for (
+            const line of lines
+        ) {
 
             const match =
                 line.match(
@@ -1012,12 +1336,15 @@ function extractRecordData(text) {
 
 
             if (!match) {
+
                 continue;
+
             }
 
 
             joyDate =
                 `${match[1]}-${String(match[2]).padStart(2, "0")}-${String(match[3]).padStart(2, "0")}`;
+
 
             break;
 
@@ -1055,11 +1382,13 @@ function extractRecordData(text) {
 
     }
 
+
     // ===============================
     // 除外ワード
     // ===============================
 
     const ignoreWords = [
+
         "REAL HDMI",
         "REAL HOMI",
         "MITSUBISHI",
@@ -1074,55 +1403,35 @@ function extractRecordData(text) {
         "で終了",
         "で次の画面へ",
         "ゲスト",
-
         "前回",
         "前々回",
         "最高",
-
         "音程",
         "安定性",
         "表現力",
         "リズム",
-
         "ビブラート",
         "ビブラー",
         "ロングトーン",
-
         "しゃくり",
         "こぶし",
         "フォール",
         "抑揚",
-
         "技術",
-
         "胸を張って",
-
         "点",
-
         "さん",
-
         "ページ",
-
         "1/2",
-
         "2/2",
-
         "3/3",
-
         "OPEN",
-
         "19:00",
-
         "メニュー",
-
         "おめでとうございます",
-
         "この調子で",
-
         "ほかの曲も",
-
         "次々と",
-
         "制覇してみてください"
 
     ];
@@ -1135,57 +1444,88 @@ function extractRecordData(text) {
     function isIgnored(line) {
 
         if (!line) {
+
             return true;
+
         }
 
 
         // 数字だけ
+
         if (
-            /^[\d\s.,:]+$/.test(line)
+            /^[\d\s.,:]+$/.test(
+                line
+            )
         ) {
+
             return true;
+
         }
 
 
         // 除外ワード
+
         if (
-            ignoreWords.some(word =>
-                line.includes(word)
+            ignoreWords.some(
+                word =>
+                    line.includes(word)
             )
         ) {
+
             return true;
+
         }
 
 
         // 日付
+
         if (
-            /\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}/.test(line)
+            /\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}/.test(
+                line
+            )
         ) {
+
             return true;
+
         }
 
 
         // 点数
+
         if (
-            /\d{2,3}\.\d{1,3}/.test(line)
+            /\d{2,3}\.\d{1,3}/.test(
+                line
+            )
         ) {
+
             return true;
+
         }
 
 
         // ページ表記
+
         if (
-            /^\d+\s*\/\s*\d+$/.test(line)
+            /^\d+\s*\/\s*\d+$/.test(
+                line
+            )
         ) {
+
             return true;
+
         }
 
 
         // 金額・点数っぽい数字
+
         if (
-            /\d{1,3}(,\d{3})*\s*点/.test(line)
+            /\d{1,3}(,\d{3})*\s*点/.test(
+                line
+            )
         ) {
+
             return true;
+
         }
 
 
@@ -1208,9 +1548,15 @@ function extractRecordData(text) {
     const scoreCandidates = [];
 
 
-    for (let i = 0; i < lines.length; i++) {
+    for (
+        let i = 0;
+        i < lines.length;
+        i++
+    ) {
 
-        const line = lines[i];
+        const line =
+            lines[i];
+
 
         const matches =
             line.match(
@@ -1219,11 +1565,15 @@ function extractRecordData(text) {
 
 
         if (!matches) {
+
             continue;
+
         }
 
 
-        for (const valueText of matches) {
+        for (
+            const valueText of matches
+        ) {
 
             const value =
                 Number(valueText);
@@ -1268,50 +1618,52 @@ function extractRecordData(text) {
     // ===============================
 
     const validScoreCandidates =
-        scoreCandidates.filter(candidate => {
+        scoreCandidates.filter(
+            candidate => {
 
-            const index =
-                candidate.index;
-
-
-            // --------------------------------
-            // 直前5行以内に「全国平均」がある
-            // --------------------------------
-
-            const previousLines =
-                lines.slice(
-                    Math.max(0, index - 5),
-                    index
-                );
+                const index =
+                    candidate.index;
 
 
-            if (
-                previousLines.some(line =>
-                    line.includes("全国平均")
-                )
-            ) {
+                const previousLines =
+                    lines.slice(
+                        Math.max(
+                            0,
+                            index - 5
+                        ),
+                        index
+                    );
 
-                return false;
+
+                if (
+                    previousLines.some(
+                        line =>
+                            line.includes(
+                                "全国平均"
+                            )
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+
+                if (
+                    candidate.line.includes(
+                        "全国平均"
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+
+                return true;
 
             }
-
-
-            // --------------------------------
-            // 同じ行に「全国平均」がある
-            // --------------------------------
-
-            if (
-                candidate.line.includes("全国平均")
-            ) {
-
-                return false;
-
-            }
-
-
-            return true;
-
-        });
+        );
 
 
     console.log(
@@ -1328,14 +1680,13 @@ function extractRecordData(text) {
         validScoreCandidates.length > 0
     ) {
 
-        // 最初に出てくる有効なスコアを採用
-
         const selected =
             validScoreCandidates[0];
 
 
         score =
             selected.value;
+
 
         scoreIndex =
             selected.index;
@@ -1348,11 +1699,14 @@ function extractRecordData(text) {
 
     }
 
+
     // ===============================
     // 日付
     // ===============================
 
-    for (const line of lines) {
+    for (
+        const line of lines
+    ) {
 
         const match =
             line.match(
@@ -1361,12 +1715,15 @@ function extractRecordData(text) {
 
 
         if (!match) {
+
             continue;
+
         }
 
 
         date =
             `${match[1]}-${String(match[2]).padStart(2, "0")}-${String(match[3]).padStart(2, "0")}`;
+
 
         break;
 
@@ -1378,8 +1735,9 @@ function extractRecordData(text) {
     // ===============================
 
     const candidates =
-        lines.filter(line =>
-            !isIgnored(line)
+        lines.filter(
+            line =>
+                !isIgnored(line)
         );
 
 
@@ -1393,14 +1751,13 @@ function extractRecordData(text) {
     // 曲名候補のスコアリング
     // ===============================
 
-    function getCandidateScore(line, index) {
+    function getCandidateScore(
+        line,
+        index
+    ) {
 
         let score = 0;
 
-
-        // -------------------------------
-        // 長さ
-        // -------------------------------
 
         if (
             line.length >= 3
@@ -1420,12 +1777,10 @@ function extractRecordData(text) {
         }
 
 
-        // -------------------------------
-        // 日本語・英語を含む
-        // -------------------------------
-
         if (
-            /[ぁ-んァ-ヶ一-龯A-Za-z]/.test(line)
+            /[ぁ-んァ-ヶ一-龯A-Za-z]/.test(
+                line
+            )
         ) {
 
             score += 2;
@@ -1433,12 +1788,10 @@ function extractRecordData(text) {
         }
 
 
-        // -------------------------------
-        // 記号だけ・数字だけに近いものは弱くする
-        // -------------------------------
-
         if (
-            /^[\d\s\-_/.,]+$/.test(line)
+            /^[\d\s\-_/.,]+$/.test(
+                line
+            )
         ) {
 
             score -= 10;
@@ -1446,16 +1799,9 @@ function extractRecordData(text) {
         }
 
 
-        // -------------------------------
-        // 画面下部にある曲情報を優先
-        //
-        // DAMの分析画面では
-        // 曲名・アーティストが
-        // 後半に出るケースがある
-        // -------------------------------
-
         if (
-            index > lines.length * 0.35
+            index >
+            lines.length * 0.35
         ) {
 
             score += 2;
@@ -1473,27 +1819,32 @@ function extractRecordData(text) {
     // ===============================
 
     const scoredCandidates =
-        candidates.map(line => {
+        candidates.map(
+            line => {
 
-            const originalIndex =
-                lines.indexOf(line);
+                const originalIndex =
+                    lines.indexOf(
+                        line
+                    );
 
 
-            return {
+                return {
 
-                line,
+                    line,
 
-                index: originalIndex,
+                    index:
+                        originalIndex,
 
-                score:
-                    getCandidateScore(
-                        line,
-                        originalIndex
-                    )
+                    score:
+                        getCandidateScore(
+                            line,
+                            originalIndex
+                        )
 
-            };
+                };
 
-        });
+            }
+        );
 
 
     console.log(
@@ -1509,19 +1860,16 @@ function extractRecordData(text) {
     function looksLikeArtist(line) {
 
         if (!line) {
+
             return false;
+
         }
 
 
-        // BISH
-        // EXILE
-        // YOASOBI
-        // back number
-        // Mrs. GREEN APPLE
-        // などを想定
-
         if (
-            /^[A-Za-z0-9 .&'’\-]+$/.test(line)
+            /^[A-Za-z0-9 .&'’\-]+$/.test(
+                line
+            )
         ) {
 
             return true;
@@ -1529,9 +1877,10 @@ function extractRecordData(text) {
         }
 
 
-        // 日本語アーティスト
         if (
-            /[ぁ-んァ-ヶ一-龯]/.test(line)
+            /[ぁ-んァ-ヶ一-龯]/.test(
+                line
+            )
         ) {
 
             if (
@@ -1549,33 +1898,35 @@ function extractRecordData(text) {
 
     }
 
+
     // ===============================
     // 曲名・アーティストを探す
     // ===============================
 
-    if (scoreIndex !== -1) {
-
-        // -------------------------------
-        // 点数より前
-        // -------------------------------
+    if (
+        scoreIndex !== -1
+    ) {
 
         const beforeScore =
             lines
-                .slice(0, scoreIndex)
-                .filter(line =>
-                    !isIgnored(line)
+                .slice(
+                    0,
+                    scoreIndex
+                )
+                .filter(
+                    line =>
+                        !isIgnored(line)
                 );
 
 
-        // -------------------------------
-        // 点数より後
-        // -------------------------------
-
         const afterScore =
             lines
-                .slice(scoreIndex + 1)
-                .filter(line =>
-                    !isIgnored(line)
+                .slice(
+                    scoreIndex + 1
+                )
+                .filter(
+                    line =>
+                        !isIgnored(line)
                 );
 
 
@@ -1583,6 +1934,7 @@ function extractRecordData(text) {
             "点数より前の候補:",
             beforeScore
         );
+
 
         console.log(
             "点数より後の候補:",
@@ -1592,8 +1944,6 @@ function extractRecordData(text) {
 
         // ===============================
         // パターン①
-        // 曲名・アーティストが
-        // 点数より前にある
         // ===============================
 
         if (
@@ -1616,8 +1966,6 @@ function extractRecordData(text) {
 
         // ===============================
         // パターン②
-        // 曲名・アーティストが
-        // 点数より後にある
         // ===============================
 
         else if (
@@ -1710,6 +2058,7 @@ function extractRecordData(text) {
 
     }
 
+
     // ===============================
     // 曲名の正規化
     // ===============================
@@ -1717,7 +2066,9 @@ function extractRecordData(text) {
     function normalizeTitle(title) {
 
         if (!title) {
+
             return "";
+
         }
 
 
@@ -1725,35 +2076,105 @@ function extractRecordData(text) {
             title;
 
 
+        const karaokeTags = [
+
+            "良音",
+            "生音",
+            "本人音源",
+            "本人歌唱",
+            "本人",
+            "ライブ音源",
+            "LIVE",
+            "ライブ",
+            "原曲",
+            "オリジナル音源",
+            "オリジナル",
+            "MV",
+            "ミュージックビデオ",
+            "ビデオクリップ",
+            "LIVE映像",
+            "ライブ映像",
+            "映画",
+            "ドラマ",
+            "アニメ",
+            "TVサイズ",
+            "ショート",
+            "フル",
+            "キー変更",
+            "ガイドボーカル",
+            "ガイドメロディ",
+            "男性キー",
+            "女性キー",
+            "原キー"
+
+        ];
+
+
+        // ===============================
+        // 括弧付き
+        // ===============================
+
+        karaokeTags.forEach(
+            tag => {
+
+                result =
+                    result.replace(
+                        new RegExp(
+                            `[（(]\\s*${tag}\\s*[）)]`,
+                            "gi"
+                        ),
+                        ""
+                    );
+
+            }
+        );
+
+
+        // ===============================
+        // 括弧なし
+        // ===============================
+
+        karaokeTags.forEach(
+            tag => {
+
+                result =
+                    result.replace(
+                        new RegExp(
+                            `\\s+${tag}\\s*$`,
+                            "gi"
+                        ),
+                        ""
+                    );
+
+            }
+        );
+
+
         // ===============================
         // ビデオクリップ関連
         // ===============================
 
-        // 「ビデオクリップ」以降を全部削除
-        // OCRが「バージョ」「バージョン」まで
-        // 読めていなくても対応する
-
         result =
             result.replace(
-                /\s*[\(（]?\s*ビデオクリップ.*$/i,
+                /\s*[（(]?\s*ビデオクリップ.*$/i,
                 ""
             );
 
 
         // ===============================
-        // 「バージョン」系
+        // バージョン系
         // ===============================
 
         result =
             result.replace(
-                /\s*[\(（]?\s*バージョ.*$/i,
+                /\s*[（(]?\s*バージョ.*$/i,
                 ""
             );
 
 
         result =
             result.replace(
-                /\s*[\(（]?\s*バージョン.*$/i,
+                /\s*[（(]?\s*バージョン.*$/i,
                 ""
             );
 
@@ -1764,18 +2185,26 @@ function extractRecordData(text) {
 
         result =
             result
-                .replace(/[\(（]\s*$/g, "")
-                .replace(/[\)）]\s*$/g, "")
-                .trim();
+                .replace(
+                    /[（(]\s*$/g,
+                    ""
+                )
+                .replace(
+                    /[）)]\s*$/g,
+                    ""
+                );
 
 
         // ===============================
-        // 余分な空白
+        // 空白整理
         // ===============================
 
         result =
             result
-                .replace(/\s+/g, " ")
+                .replace(
+                    /\s+/g,
+                    " "
+                )
                 .trim();
 
 
@@ -1807,7 +2236,9 @@ function extractRecordData(text) {
         date
 
     };
+
 }
+
 
 // ===============================
 // 既存曲候補検索
@@ -1828,100 +2259,106 @@ function findSongCandidates(
     const normalizedTitle =
         normalizeText(title);
 
-
     const normalizedArtist =
         normalizeText(artist);
 
 
     return records
-        .filter(record => {
+        .filter(
+            record => {
 
-            const recordTitle =
-                normalizeText(
-                    record.title
-                );
-
-
-            const recordArtist =
-                normalizeText(
-                    record.artist
-                );
+                const recordTitle =
+                    normalizeText(
+                        record.title
+                    );
 
 
-            const titleMatch =
-                recordTitle.includes(
-                    normalizedTitle
-                ) ||
-                normalizedTitle.includes(
-                    recordTitle
-                );
+                const recordArtist =
+                    normalizeText(
+                        record.artist
+                    );
 
 
-            const artistMatch =
-                normalizedArtist &&
-                (
-                    recordArtist.includes(
-                        normalizedArtist
-                    ) ||
-                    normalizedArtist.includes(
-                        recordArtist
+                const titleMatch =
+                    recordTitle.includes(
+                        normalizedTitle
                     )
+                    ||
+                    normalizedTitle.includes(
+                        recordTitle
+                    );
+
+
+                const artistMatch =
+                    normalizedArtist
+                    &&
+                    (
+                        recordArtist.includes(
+                            normalizedArtist
+                        )
+                        ||
+                        normalizedArtist.includes(
+                            recordArtist
+                        )
+                    );
+
+
+                return (
+                    titleMatch ||
+                    artistMatch
                 );
-
-
-            return (
-                titleMatch ||
-                artistMatch
-            );
-
-        })
-        .sort((a, b) => {
-
-            const aTitle =
-                normalizeText(
-                    a.title
-                );
-
-
-            const bTitle =
-                normalizeText(
-                    b.title
-                );
-
-
-            const aExact =
-                aTitle ===
-                normalizedTitle;
-
-
-            const bExact =
-                bTitle ===
-                normalizedTitle;
-
-
-            if (
-                aExact &&
-                !bExact
-            ) {
-
-                return -1;
 
             }
+        )
+        .sort(
+            (a, b) => {
+
+                const aTitle =
+                    normalizeText(
+                        a.title
+                    );
 
 
-            if (
-                !aExact &&
-                bExact
-            ) {
+                const bTitle =
+                    normalizeText(
+                        b.title
+                    );
 
-                return 1;
+
+                const aExact =
+                    aTitle ===
+                    normalizedTitle;
+
+
+                const bExact =
+                    bTitle ===
+                    normalizedTitle;
+
+
+                if (
+                    aExact &&
+                    !bExact
+                ) {
+
+                    return -1;
+
+                }
+
+
+                if (
+                    !aExact &&
+                    bExact
+                ) {
+
+                    return 1;
+
+                }
+
+
+                return 0;
 
             }
-
-
-            return 0;
-
-        });
+        );
 
 }
 
@@ -2086,7 +2523,6 @@ function selectExistingSong(
         area.innerHTML =
             "";
 
-
         area.classList.add(
             "hidden"
         );
@@ -2097,6 +2533,15 @@ function selectExistingSong(
     console.log(
         "既存曲を選択:",
         record
+    );
+
+
+    console.log(
+        "既存曲のメモ:",
+        getSongMemo(
+            record.title,
+            record.artist
+        )
     );
 
 }
@@ -2133,14 +2578,20 @@ function setTodayDate() {
         String(
             today.getMonth() + 1
         )
-            .padStart(2, "0");
+            .padStart(
+                2,
+                "0"
+            );
 
 
     const day =
         String(
             today.getDate()
         )
-            .padStart(2, "0");
+            .padStart(
+                2,
+                "0"
+            );
 
 
     dateInput.value =
@@ -2243,8 +2694,10 @@ if (saveRecordBtn) {
             if (
                 Number.isNaN(
                     scoreNumber
-                ) ||
-                scoreNumber < 0 ||
+                )
+                ||
+                scoreNumber < 0
+                ||
                 scoreNumber > 100
             ) {
 
@@ -2266,6 +2719,40 @@ if (saveRecordBtn) {
                 return;
 
             }
+
+            // 未来日の入力を禁止
+const today = new Date();
+const todayString =
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+if (date > todayString) {
+    alert("歌唱日に未来の日付は入力できません");
+    return;
+}
+
+
+            // ===============================
+            // 既存曲のメモを取得
+            // ===============================
+
+            const existingMemo =
+                getSongMemo(
+                    title,
+                    artist
+                );
+
+
+            console.log(
+                "登録曲:",
+                title,
+                artist
+            );
+
+
+            console.log(
+                "引き継ぐメモ:",
+                existingMemo
+            );
 
 
             // ===============================
@@ -2289,18 +2776,33 @@ if (saveRecordBtn) {
 
             const newRecord = {
 
-                id: newId,
+                id:
+                    newId,
 
-                title: title,
+                title:
+                    title,
 
-                artist: artist,
+                artist:
+                    artist,
 
-                score: scoreNumber,
+                score:
+                    scoreNumber,
 
-                date: date,
+                date:
+                    date,
+
+                // ===============================
+                // 既存曲なら既存メモを継承
+                // 新曲なら空
+                // ===============================
+
+                memo:
+                    existingMemo,
 
                 // 登録した瞬間の時刻
-                createdAt: Date.now()
+
+                createdAt:
+                    Date.now()
 
             };
 
@@ -2309,7 +2811,10 @@ if (saveRecordBtn) {
             // recordsへ追加
             // ===============================
 
-            records.push(newRecord);
+            records.push(
+                newRecord
+            );
+
 
             // ===============================
             // localStorageへ保存
@@ -2376,28 +2881,32 @@ if (saveRecordBtn) {
                 .getElementById(
                     "recordTitle"
                 )
-                .value = "";
+                .value =
+                "";
 
 
             document
                 .getElementById(
                     "recordArtist"
                 )
-                .value = "";
+                .value =
+                "";
 
 
             document
                 .getElementById(
                     "recordScore"
                 )
-                .value = "";
+                .value =
+                "";
 
 
             document
                 .getElementById(
                     "recordDate"
                 )
-                .value = "";
+                .value =
+                "";
 
 
             // ===============================
@@ -2408,6 +2917,7 @@ if (saveRecordBtn) {
 
                 titleSuggestions.innerHTML =
                     "";
+
 
                 titleSuggestions.classList.add(
                     "hidden"
@@ -2420,6 +2930,7 @@ if (saveRecordBtn) {
 
                 artistSuggestions.innerHTML =
                     "";
+
 
                 artistSuggestions.classList.add(
                     "hidden"
@@ -2439,6 +2950,7 @@ if (saveRecordBtn) {
                 songCandidates.innerHTML =
                     "";
 
+
                 songCandidates.classList.add(
                     "hidden"
                 );
@@ -2450,7 +2962,9 @@ if (saveRecordBtn) {
             // ホームへ戻る
             // ===============================
 
-            showPage("home");
+            showPage(
+                "home"
+            );
 
 
             // ===============================
@@ -2466,7 +2980,8 @@ if (saveRecordBtn) {
                     "記録しました！"
                 );
 
-            } else {
+            }
+            else {
 
                 alert(
                     "記録しました！"

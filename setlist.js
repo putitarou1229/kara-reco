@@ -464,13 +464,22 @@ if (type === "recent") {
     };
 
 
+    
     // ===============================
-    // プレビュー表示
+    // 新しいセットリスト編集画面へ移動
     // ===============================
 
-    showAutoSetlistPreview();
+    // 編集前のセットリストを一時保存
+    sessionStorage.setItem(
+        "karaRecoPreviewSetlist",
+        JSON.stringify(previewSetlist)
+    );
+
+    // 編集画面を開く
+    location.href = "setlist-preview.html";
 
 }
+
 
 
 // ===============================

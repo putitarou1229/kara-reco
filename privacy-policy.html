@@ -122,25 +122,25 @@
             word-break: break-word;
         }
 
-        .back-button {
+.back-button {
     display: block;
-    margin: 12px auto 0;
-    width: calc(100% - 20px);
-    max-width: 800px;
-    padding: 10px 14px;
+    width: 40px;
+    height: 40px;
+    margin: 0 0 2px 0;
+    padding: 0;
     border: none;
-    border-radius: 8px;
-    background: #fff;
+    background: transparent;
     color: #333;
-    font-size: 15px;
-    text-align: left;
+    font-size: 28px;
+    line-height: 40px;
+    text-align: center;
     cursor: pointer;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
 }
 
 .back-button:active {
-    background: #eee;
+    opacity: 0.5;
 }
+
 
         @media (max-width: 480px) {
             .container {
@@ -166,7 +166,7 @@
 <body>
 
     <button class="back-button" onclick="history.back()">
-    ← 設定に戻る
+    ←
 </button>
 
 <div class="container">
